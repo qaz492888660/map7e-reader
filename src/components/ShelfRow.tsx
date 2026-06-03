@@ -8,11 +8,14 @@ interface Props {
   books: Book[]
   isFocused: boolean
   isDimmed: boolean
+  pulledBook: Book | null
   onFocus: (index: number) => void
   onBookPull: (book: Book) => void
+  onBookReturn: () => void
+  onBookRead: (book: Book) => void
 }
 
-export default function ShelfRow({ index, label, books, isFocused, isDimmed, onFocus, onBookPull }: Props) {
+export default function ShelfRow({ index, label, books, isFocused, isDimmed, pulledBook, onFocus, onBookPull, onBookReturn, onBookRead }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
   const shadowRef = useRef<HTMLDivElement>(null)
   const surfaceRef = useRef<HTMLDivElement>(null)
@@ -59,14 +62,16 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
       : '0 7px 18px rgba(0,0,0,0.65), inset 0 1px 2px rgba(255,255,255,0.02)'
   }, [isFocused])
 
+  const pulledIndex = pulledBook ? books.findIndex(b => b.id === pulledBook.id) : -1
+
   return (
     <div
       ref={rootRef}
-      onClick={() => { if (!isFocused && !isDimmed) onFocus(index) }}
+      onClick={() => { if (!isFocused && !isDimmed && !pulledBook) onFocus(index) }}
       style={{
         transformStyle: 'preserve-3d',
         transition: 'transform 0.7s cubic-bezier(0.23,1,0.32,1), filter 0.7s ease, opacity 0.5s ease',
-        cursor: isDimmed ? 'default' : 'pointer',
+        cursor: isDimmed || pulledBook ? 'default' : 'pointer',
         position: 'relative',
       }}
     >
@@ -77,14 +82,27 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
         transformStyle: 'preserve-3d',
         minHeight: 260,
       }}>
-        {books.map((book) => (
-          <BookSpine
-            key={book.id}
-            book={book}
-            dimmed={isDimmed}
-            onPull={onBookPull}
-          />
-        ))}
+        {books.map((book, i) => {
+          const isPulled = pulledBook?.id === book.id
+          const isSiblingPulled = pulledBook !== null && !isPulled
+          let pullDirection: 'left' | 'right' | null = null
+          if (isSiblingPulled && pulledIndex >= 0) {
+            pullDirection = i < pulledIndex ? 'left' : 'right'
+          }
+          return (
+            <BookSpine
+              key={book.id}
+              book={book}
+              dimmed={isDimmed}
+              pulled={isPulled}
+              siblingPulled={isSiblingPulled}
+              pullDirection={pullDirection}
+              onPull={onBookPull}
+              onReturn={onBookReturn}
+              onRead={onBookRead}
+            />
+          )
+        })}
       </div>
 
       {/* Shelf surface */}

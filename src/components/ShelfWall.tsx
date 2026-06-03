@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import ShelfRow from './ShelfRow'
-import BookFocus from './BookFocus'
 import ReadingPortal from './ReadingPortal'
 import { library } from '../data/mockLibrary'
 import { useSpatialState } from '../hooks/useSpatialState'
@@ -8,7 +7,7 @@ import { useSpatialState } from '../hooks/useSpatialState'
 export default function ShelfWall() {
   const {
     phase, focusedShelf, pulledBook,
-    focusShelf, returnToWall, pullBook, enterReading, closeReading,
+    focusShelf, returnToWall, pullBook, returnToShelf, enterReading, closeReading,
   } = useSpatialState()
 
   const [isMobile, setIsMobile] = useState(false)
@@ -31,6 +30,10 @@ export default function ShelfWall() {
       if (dy < 0 && mobileShelf < library.length - 1) setMobileShelf(s => s + 1)
       if (dy > 0 && mobileShelf > 0) setMobileShelf(s => s - 1)
     }
+  }
+
+  const handleBookRead = () => {
+    enterReading()
   }
 
   return (
@@ -81,8 +84,11 @@ export default function ShelfWall() {
                 books={library[mobileShelf].books}
                 isFocused={focusedShelf === mobileShelf}
                 isDimmed={false}
+                pulledBook={phase === 'bookPulled' ? pulledBook : null}
                 onFocus={focusShelf}
                 onBookPull={pullBook}
+                onBookReturn={returnToShelf}
+                onBookRead={handleBookRead}
               />
             </div>
             {/* Mobile indicators */}
@@ -115,22 +121,16 @@ export default function ShelfWall() {
                 books={shelf.books}
                 isFocused={focusedShelf === i}
                 isDimmed={focusedShelf !== null && focusedShelf !== i}
+                pulledBook={phase === 'bookPulled' && focusedShelf === i ? pulledBook : null}
                 onFocus={focusShelf}
                 onBookPull={pullBook}
+                onBookReturn={returnToShelf}
+                onBookRead={handleBookRead}
               />
             ))}
           </div>
         )}
       </div>
-
-      {/* Book focus */}
-      {phase === 'bookPulled' && pulledBook && (
-        <BookFocus
-          book={pulledBook}
-          onEnterReading={enterReading}
-          onReturn={returnToWall}
-        />
-      )}
 
       {/* Reading */}
       {phase === 'reading' && pulledBook && (

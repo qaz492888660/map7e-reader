@@ -27,7 +27,12 @@ export function useSpatialState() {
     lockRef.current = true
     setPulledBook(book)
     setPhase('bookPulled')
-    setTimeout(() => { lockRef.current = false }, 800)
+    setTimeout(() => { lockRef.current = false }, 600)
+  }, [])
+
+  const returnToShelf = useCallback(() => {
+    setPulledBook(null)
+    setPhase('shelfFocused')
   }, [])
 
   const enterReading = useCallback(() => {
@@ -47,6 +52,7 @@ export function useSpatialState() {
     focusShelf,
     returnToWall,
     pullBook,
+    returnToShelf,
     enterReading,
     closeReading,
   }
