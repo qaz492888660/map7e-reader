@@ -26,23 +26,19 @@ export default function BookSpine({ book, dimmed, pulled, siblingPulled, pullDir
         : 'translateZ(80px) scale(1.15) rotateY(-5deg) rotateZ(0deg)'
       el.style.filter = 'brightness(1.2)'
       el.style.opacity = '1'
-      el.style.zIndex = '50'
     } else if (siblingPulled && pullDirection) {
       const shift = pullDirection === 'left' ? (isMobile ? -15 : -20) : (isMobile ? 15 : 20)
       el.style.transform = `translateX(${shift}px) translateZ(-10px) rotateZ(${book.tilt}deg)`
       el.style.filter = isMobile ? 'brightness(0.5)' : 'brightness(0.4) saturate(0.5)'
       el.style.opacity = isMobile ? '0.6' : '0.5'
-      el.style.zIndex = '1'
     } else if (dimmed) {
       el.style.transform = `rotateZ(${book.tilt}deg)`
       el.style.filter = 'brightness(0.3) saturate(0.3)'
       el.style.opacity = '0.4'
-      el.style.zIndex = '1'
     } else {
       el.style.transform = `rotateZ(${book.tilt}deg)`
       el.style.filter = ''
       el.style.opacity = ''
-      el.style.zIndex = ''
     }
   }, [pulled, siblingPulled, pullDirection, dimmed, book.tilt, isMobile])
 
@@ -89,7 +85,6 @@ export default function BookSpine({ book, dimmed, pulled, siblingPulled, pullDir
       {/* Spine face */}
       <div style={{
         position: 'absolute', inset: 0,
-        borderRadius: '2px 3px 3px 2px',
         background: `linear-gradient(160deg, ${book.spineColor} 0%, ${book.spineDark} 100%)`,
         transform: `translateZ(${isMobile ? 4 : 5}px)`,
         overflow: 'hidden',
@@ -157,7 +152,6 @@ export default function BookSpine({ book, dimmed, pulled, siblingPulled, pullDir
           <div style={{
             position: 'absolute', inset: -2,
             border: '1.5px solid rgba(212,160,85,0.35)',
-            borderRadius: 4,
             boxShadow: '0 0 18px rgba(212,160,85,0.2), inset 0 0 10px rgba(212,160,85,0.06)',
             pointerEvents: 'none',
           }} />
@@ -168,7 +162,6 @@ export default function BookSpine({ book, dimmed, pulled, siblingPulled, pullDir
         position: 'absolute', top: 0, width: isMobile ? 7 : 9, height: '100%',
         right: isMobile ? -4 : -5,
         background: 'linear-gradient(90deg, #e8e0c8, #f5eed8 35%, #e8e0c8)',
-        borderRadius: '0 2px 2px 0',
         transformOrigin: 'left center',
         transform: 'rotateY(90deg)',
         boxShadow: isMobile ? 'none' : 'inset 0 0 5px rgba(0,0,0,0.12)',

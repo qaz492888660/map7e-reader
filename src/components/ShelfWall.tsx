@@ -14,7 +14,6 @@ export default function ShelfWall() {
   const [mobileShelf, setMobileShelf] = useState(0)
   const touchStartY = useRef(0)
   const touchStartX = useRef(0)
-  const booksContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -34,14 +33,9 @@ export default function ShelfWall() {
     const absDy = Math.abs(dy)
     const absDx = Math.abs(dx)
 
-    // Vertical swipe - switch shelves
     if (absDy > absDx && absDy > 50) {
-      if (dy < 0 && mobileShelf < library.length - 1) {
-        setMobileShelf(s => s + 1)
-      }
-      if (dy > 0 && mobileShelf > 0) {
-        setMobileShelf(s => s - 1)
-      }
+      if (dy < 0 && mobileShelf < library.length - 1) setMobileShelf(s => s + 1)
+      if (dy > 0 && mobileShelf > 0) setMobileShelf(s => s - 1)
     }
   }, [mobileShelf])
 
@@ -96,51 +90,39 @@ export default function ShelfWall() {
             {/* Shelf label */}
             <div style={{
               position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)',
-              color: 'rgba(212,160,85,0.5)', fontSize: 10, letterSpacing: 3,
-              textTransform: 'uppercase', fontWeight: 600,
+              color: 'rgba(212,160,85,0.4)', fontSize: 10, letterSpacing: 3,
+              fontWeight: 600,
             }}>
               {library[mobileShelf].label}
             </div>
 
-            {/* Books container with horizontal scroll */}
-            <div
-              ref={booksContainerRef}
-              style={{
-                width: '100%', overflowX: 'auto', overflowY: 'hidden',
-                WebkitOverflowScrolling: 'touch',
-                padding: '0 20px',
-                scrollSnapType: 'x proximity',
-              }}
-            >
-              <div style={{
-                display: 'flex', alignItems: 'flex-end', gap: 8,
-                minWidth: 'max-content',
-                padding: '20px 0',
-                transformStyle: 'preserve-3d',
-              }}>
-                {library[mobileShelf].books.map((book, i) => {
-                  const isPulled = pulledBook?.id === book.id
-                  const isSiblingPulled = pulledBook !== null && !isPulled
-                  let pullDirection: 'left' | 'right' | null = null
-                  if (isSiblingPulled && pulledBook) {
-                    const pulledIdx = library[mobileShelf].books.findIndex(b => b.id === pulledBook.id)
-                    pullDirection = i < pulledIdx ? 'left' : 'right'
-                  }
-                  return (
-                    <div key={book.id} style={{ scrollSnapAlign: 'center' }}>
-                      <BookSpineMobile
-                        book={book}
-                        pulled={isPulled}
-                        siblingPulled={isSiblingPulled}
-                        pullDirection={pullDirection}
-                        onPull={pullBook}
-                        onReturn={returnToShelf}
-                        onRead={handleBookRead}
-                      />
-                    </div>
-                  )
-                })}
-              </div>
+            {/* Books */}
+            <div style={{
+              display: 'flex', alignItems: 'flex-end', gap: 8,
+              padding: '20px 24px',
+              transformStyle: 'preserve-3d',
+            }}>
+              {library[mobileShelf].books.map((book, i) => {
+                const isPulled = pulledBook?.id === book.id
+                const isSiblingPulled = pulledBook !== null && !isPulled
+                let pullDirection: 'left' | 'right' | null = null
+                if (isSiblingPulled && pulledBook) {
+                  const pulledIdx = library[mobileShelf].books.findIndex(b => b.id === pulledBook.id)
+                  pullDirection = i < pulledIdx ? 'left' : 'right'
+                }
+                return (
+                  <BookSpineMobile
+                    key={book.id}
+                    book={book}
+                    pulled={isPulled}
+                    siblingPulled={isSiblingPulled}
+                    pullDirection={pullDirection}
+                    onPull={pullBook}
+                    onReturn={returnToShelf}
+                    onRead={handleBookRead}
+                  />
+                )
+              })}
             </div>
 
             {/* Shelf surface */}
@@ -154,21 +136,6 @@ export default function ShelfWall() {
               background: 'linear-gradient(180deg, #4a3020 0%, #3a2418 30%, #2a1a0e 70%, #1a1008 100%)',
               boxShadow: '0 6px 16px rgba(0,0,0,0.6)',
             }} />
-
-            {/* Mobile indicators */}
-            <div style={{
-              position: 'absolute', bottom: -30, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', gap: 6,
-            }}>
-              {library.map((_, i) => (
-                <div key={i} onClick={() => setMobileShelf(i)} style={{
-                  width: i === mobileShelf ? 16 : 4, height: 4, borderRadius: 2,
-                  background: i === mobileShelf ? 'rgba(212,160,85,0.5)' : 'rgba(255,255,255,0.12)',
-                  transition: 'all 0.3s ease',
-                  cursor: 'pointer',
-                }} />
-              ))}
-            </div>
           </div>
         ) : (
           <div style={{
@@ -206,7 +173,6 @@ export default function ShelfWall() {
   )
 }
 
-// Mobile-optimized book spine (no heavy shadows/blur)
 function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, onReturn, onRead }: {
   book: import('../data/mockLibrary').Book
   pulled: boolean
@@ -260,7 +226,6 @@ function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, o
     >
       <div style={{
         position: 'absolute', inset: 0,
-        borderRadius: '2px 3px 3px 2px',
         background: `linear-gradient(160deg, ${book.spineColor} 0%, ${book.spineDark} 100%)`,
         transform: 'translateZ(4px)',
         overflow: 'hidden',
@@ -278,7 +243,7 @@ function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, o
         }} />
         <div style={{
           position: 'absolute', inset: 0,
-          background: 'linear-gradient(115deg, rgba(255,255,255,0.1) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.02) 100%)',
+          background: 'linear-gradient(115deg, rgba(255,255,255,0.08) 0%, transparent 50%, rgba(255,255,255,0.02) 100%)',
           pointerEvents: 'none',
         }} />
         <div style={{
@@ -302,7 +267,6 @@ function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, o
           <div style={{
             position: 'absolute', inset: -1,
             border: '1px solid rgba(212,160,85,0.3)',
-            borderRadius: 3,
             boxShadow: '0 0 12px rgba(212,160,85,0.15)',
             pointerEvents: 'none',
           }} />
@@ -312,7 +276,6 @@ function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, o
         position: 'absolute', top: 0, width: 7, height: '100%',
         right: -4,
         background: 'linear-gradient(90deg, #e8e0c8, #f5eed8 35%, #e8e0c8)',
-        borderRadius: '0 2px 2px 0',
         transformOrigin: 'left center',
         transform: 'rotateY(90deg)',
       }} />
@@ -352,9 +315,8 @@ function DustCanvas({ count }: { count: number }) {
             const r = p.l / p.ml
             p.o = r < 0.1 ? r * 10 : r > 0.8 ? (1 - r) * 5 : 1
             p.x += p.vx; p.y += p.vy
-            const a = p.o * 0.25
             ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2)
-            ctx.fillStyle = `rgba(212,160,85,${a})`; ctx.fill()
+            ctx.fillStyle = `rgba(212,160,85,${p.o * 0.25})`; ctx.fill()
           }
           raf = requestAnimationFrame(draw)
         }

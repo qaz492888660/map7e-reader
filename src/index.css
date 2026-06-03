@@ -23,7 +23,3 @@ button {
   font-family: inherit;
   color: inherit;
 }
-
-::-webkit-scrollbar {
-  display: none;
-}
