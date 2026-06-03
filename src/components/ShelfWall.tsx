@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 import ShelfRow from './ShelfRow'
 import ReadingPortal from './ReadingPortal'
 import { library } from '../data/mockLibrary'
@@ -13,6 +13,8 @@ export default function ShelfWall() {
   const [isMobile, setIsMobile] = useState(false)
   const [mobileShelf, setMobileShelf] = useState(0)
   const touchStartY = useRef(0)
+  const touchStartX = useRef(0)
+  const booksContainerRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -21,20 +23,33 @@ export default function ShelfWall() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY
-  }
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    const dy = e.changedTouches[0].clientY - touchStartY.current
-    if (Math.abs(dy) > 50) {
-      if (dy < 0 && mobileShelf < library.length - 1) setMobileShelf(s => s + 1)
-      if (dy > 0 && mobileShelf > 0) setMobileShelf(s => s - 1)
-    }
-  }
+    touchStartX.current = e.touches[0].clientX
+  }, [])
 
-  const handleBookRead = () => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const dy = e.changedTouches[0].clientY - touchStartY.current
+    const dx = e.changedTouches[0].clientX - touchStartX.current
+    const absDy = Math.abs(dy)
+    const absDx = Math.abs(dx)
+
+    // Vertical swipe - switch shelves
+    if (absDy > absDx && absDy > 50) {
+      if (dy < 0 && mobileShelf < library.length - 1) {
+        setMobileShelf(s => s + 1)
+      }
+      if (dy > 0 && mobileShelf > 0) {
+        setMobileShelf(s => s - 1)
+      }
+    }
+  }, [mobileShelf])
+
+  const handleBookRead = useCallback(() => {
     enterReading()
-  }
+  }, [enterReading])
+
+  const dustCount = isMobile ? 15 : 35
 
   return (
     <div
@@ -57,50 +72,100 @@ export default function ShelfWall() {
       {/* Ambient top glow */}
       <div style={{
         position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-        width: 600, height: 250,
+        width: isMobile ? 400 : 600, height: isMobile ? 180 : 250,
         background: 'radial-gradient(ellipse, rgba(180,140,60,0.04) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
       {/* Dust */}
-      <DustCanvas />
+      <DustCanvas count={dustCount} />
 
       {/* Wall */}
       <div style={{
         position: 'absolute', inset: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
-        perspective: 1800,
+        perspective: isMobile ? 1200 : 1800,
         perspectiveOrigin: '50% 38%',
       }}>
         {isMobile ? (
           <div style={{
             width: '100%', height: '100%',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            position: 'relative',
           }}>
-            <div style={{ transformStyle: 'preserve-3d', width: '92%' }}>
-              <ShelfRow
-                index={mobileShelf}
-                label={library[mobileShelf].label}
-                books={library[mobileShelf].books}
-                isFocused={focusedShelf === mobileShelf}
-                isDimmed={false}
-                pulledBook={phase === 'bookPulled' ? pulledBook : null}
-                onFocus={focusShelf}
-                onBookPull={pullBook}
-                onBookReturn={returnToShelf}
-                onBookRead={handleBookRead}
-              />
+            {/* Shelf label */}
+            <div style={{
+              position: 'absolute', top: 20, left: '50%', transform: 'translateX(-50%)',
+              color: 'rgba(212,160,85,0.5)', fontSize: 10, letterSpacing: 3,
+              textTransform: 'uppercase', fontWeight: 600,
+            }}>
+              {library[mobileShelf].label}
             </div>
+
+            {/* Books container with horizontal scroll */}
+            <div
+              ref={booksContainerRef}
+              style={{
+                width: '100%', overflowX: 'auto', overflowY: 'hidden',
+                WebkitOverflowScrolling: 'touch',
+                padding: '0 20px',
+                scrollSnapType: 'x proximity',
+              }}
+            >
+              <div style={{
+                display: 'flex', alignItems: 'flex-end', gap: 8,
+                minWidth: 'max-content',
+                padding: '20px 0',
+                transformStyle: 'preserve-3d',
+              }}>
+                {library[mobileShelf].books.map((book, i) => {
+                  const isPulled = pulledBook?.id === book.id
+                  const isSiblingPulled = pulledBook !== null && !isPulled
+                  let pullDirection: 'left' | 'right' | null = null
+                  if (isSiblingPulled && pulledBook) {
+                    const pulledIdx = library[mobileShelf].books.findIndex(b => b.id === pulledBook.id)
+                    pullDirection = i < pulledIdx ? 'left' : 'right'
+                  }
+                  return (
+                    <div key={book.id} style={{ scrollSnapAlign: 'center' }}>
+                      <BookSpineMobile
+                        book={book}
+                        pulled={isPulled}
+                        siblingPulled={isSiblingPulled}
+                        pullDirection={pullDirection}
+                        onPull={pullBook}
+                        onReturn={returnToShelf}
+                        onRead={handleBookRead}
+                      />
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Shelf surface */}
+            <div style={{
+              width: '100%', height: 8,
+              background: 'linear-gradient(180deg, #3d2a16 0%, #2a1a0e 40%, #1a1008 100%)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+            }} />
+            <div style={{
+              width: '100%', height: 14,
+              background: 'linear-gradient(180deg, #4a3020 0%, #3a2418 30%, #2a1a0e 70%, #1a1008 100%)',
+              boxShadow: '0 6px 16px rgba(0,0,0,0.6)',
+            }} />
+
             {/* Mobile indicators */}
             <div style={{
-              position: 'absolute', bottom: 18, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', gap: 7,
+              position: 'absolute', bottom: -30, left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', gap: 6,
             }}>
               {library.map((_, i) => (
-                <div key={i} style={{
-                  width: i === mobileShelf ? 18 : 5, height: 5, borderRadius: 3,
+                <div key={i} onClick={() => setMobileShelf(i)} style={{
+                  width: i === mobileShelf ? 16 : 4, height: 4, borderRadius: 2,
                   background: i === mobileShelf ? 'rgba(212,160,85,0.5)' : 'rgba(255,255,255,0.12)',
                   transition: 'all 0.3s ease',
+                  cursor: 'pointer',
                 }} />
               ))}
             </div>
@@ -122,6 +187,7 @@ export default function ShelfWall() {
                 isFocused={focusedShelf === i}
                 isDimmed={focusedShelf !== null && focusedShelf !== i}
                 pulledBook={phase === 'bookPulled' && focusedShelf === i ? pulledBook : null}
+                isMobile={false}
                 onFocus={focusShelf}
                 onBookPull={pullBook}
                 onBookReturn={returnToShelf}
@@ -140,7 +206,128 @@ export default function ShelfWall() {
   )
 }
 
-function DustCanvas() {
+// Mobile-optimized book spine (no heavy shadows/blur)
+function BookSpineMobile({ book, pulled, siblingPulled, pullDirection, onPull, onReturn, onRead }: {
+  book: import('../data/mockLibrary').Book
+  pulled: boolean
+  siblingPulled: boolean
+  pullDirection: 'left' | 'right' | null
+  onPull: (book: import('../data/mockLibrary').Book) => void
+  onReturn: () => void
+  onRead: (book: import('../data/mockLibrary').Book) => void
+}) {
+  const ref = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    if (pulled) {
+      el.style.transform = 'translateZ(60px) scale(1.12) rotateY(-4deg) rotateZ(0deg)'
+      el.style.filter = 'brightness(1.15)'
+      el.style.opacity = '1'
+    } else if (siblingPulled && pullDirection) {
+      const shift = pullDirection === 'left' ? -15 : 15
+      el.style.transform = `translateX(${shift}px) rotateZ(${book.tilt}deg)`
+      el.style.filter = 'brightness(0.5)'
+      el.style.opacity = '0.6'
+    } else {
+      el.style.transform = `rotateZ(${book.tilt}deg)`
+      el.style.filter = ''
+      el.style.opacity = ''
+    }
+  }, [pulled, siblingPulled, pullDirection, book.tilt])
+
+  const handleClick = () => {
+    if (pulled) { onRead(book); return }
+    if (siblingPulled) return
+    onPull(book)
+  }
+
+  return (
+    <div
+      ref={ref}
+      onClick={handleClick}
+      style={{
+        width: book.width * 0.85,
+        height: book.height * 0.85,
+        flexShrink: 0,
+        transformStyle: 'preserve-3d',
+        transform: `rotateZ(${book.tilt}deg)`,
+        transition: 'transform 0.4s cubic-bezier(0.23,1,0.32,1), filter 0.4s ease, opacity 0.4s ease',
+        cursor: 'pointer',
+        position: 'relative',
+      }}
+    >
+      <div style={{
+        position: 'absolute', inset: 0,
+        borderRadius: '2px 3px 3px 2px',
+        background: `linear-gradient(160deg, ${book.spineColor} 0%, ${book.spineDark} 100%)`,
+        transform: 'translateZ(4px)',
+        overflow: 'hidden',
+        boxShadow: '2px 0 8px rgba(0,0,0,0.5), inset -4px 0 10px rgba(0,0,0,0.3), inset 2px 0 5px rgba(255,255,255,0.05)',
+      }}>
+        <div style={{
+          position: 'absolute', top: 0, left: 0, right: 0, height: 2,
+          background: 'linear-gradient(90deg, transparent 6%, #c9a44a 22%, #f0d98c 42%, #c9a44a 62%, transparent 94%)',
+          opacity: 0.7,
+        }} />
+        <div style={{
+          position: 'absolute', bottom: 0, left: 0, right: 0, height: 2,
+          background: 'linear-gradient(90deg, transparent 6%, #c9a44a 22%, #f0d98c 42%, #c9a44a 62%, transparent 94%)',
+          opacity: 0.7,
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: 'linear-gradient(115deg, rgba(255,255,255,0.1) 0%, transparent 35%, transparent 65%, rgba(255,255,255,0.02) 100%)',
+          pointerEvents: 'none',
+        }} />
+        <div style={{
+          position: 'absolute', inset: 0,
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+          padding: '14px 2px', gap: 10,
+        }}>
+          <span style={{
+            writingMode: 'vertical-rl', textOrientation: 'mixed',
+            color: 'rgba(255,255,255,0.45)', fontSize: 8, letterSpacing: 1.5,
+            maxHeight: 40, overflow: 'hidden',
+          }}>{book.author}</span>
+          <span style={{
+            writingMode: 'vertical-rl', textOrientation: 'mixed',
+            color: 'rgba(255,255,255,0.9)', fontSize: 11, fontWeight: 700,
+            letterSpacing: 2, lineHeight: 1.3, maxHeight: 100, overflow: 'hidden',
+            textShadow: '0 1px 2px rgba(0,0,0,0.5)',
+          }}>{book.title}</span>
+        </div>
+        {pulled && (
+          <div style={{
+            position: 'absolute', inset: -1,
+            border: '1px solid rgba(212,160,85,0.3)',
+            borderRadius: 3,
+            boxShadow: '0 0 12px rgba(212,160,85,0.15)',
+            pointerEvents: 'none',
+          }} />
+        )}
+      </div>
+      <div style={{
+        position: 'absolute', top: 0, width: 7, height: '100%',
+        right: -4,
+        background: 'linear-gradient(90deg, #e8e0c8, #f5eed8 35%, #e8e0c8)',
+        borderRadius: '0 2px 2px 0',
+        transformOrigin: 'left center',
+        transform: 'rotateY(90deg)',
+      }} />
+      <div style={{
+        position: 'absolute', left: 0, right: 0, height: 5,
+        bottom: -3,
+        background: 'linear-gradient(90deg, rgba(20,14,8,0.7), rgba(30,20,12,0.5) 50%, rgba(20,14,8,0.7))',
+        transformOrigin: 'top center',
+        transform: 'rotateX(90deg)',
+      }} />
+    </div>
+  )
+}
+
+function DustCanvas({ count }: { count: number }) {
   return (
     <canvas
       ref={(canvas) => {
@@ -150,10 +337,10 @@ function DustCanvas() {
         const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
         resize()
         window.addEventListener('resize', resize)
-        const pts = Array.from({ length: 35 }, () => ({
+        const pts = Array.from({ length: count }, () => ({
           x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-          s: Math.random() * 1.5 + 0.3,
-          vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2 - 0.1,
+          s: Math.random() * 1.3 + 0.3,
+          vx: (Math.random() - 0.5) * 0.15, vy: (Math.random() - 0.5) * 0.15 - 0.08,
           o: 0, l: 0, ml: Math.random() * 200 + 100,
         }))
         let raf: number
@@ -165,7 +352,7 @@ function DustCanvas() {
             const r = p.l / p.ml
             p.o = r < 0.1 ? r * 10 : r > 0.8 ? (1 - r) * 5 : 1
             p.x += p.vx; p.y += p.vy
-            const a = p.o * 0.28
+            const a = p.o * 0.25
             ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2)
             ctx.fillStyle = `rgba(212,160,85,${a})`; ctx.fill()
           }
@@ -174,7 +361,7 @@ function DustCanvas() {
         draw()
         return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) }
       }}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.4 }}
+      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.35 }}
     />
   )
 }
