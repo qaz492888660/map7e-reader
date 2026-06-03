@@ -90,10 +90,10 @@ export default function ReadingPortal({ book, onClose }: Props) {
       display: 'flex', alignItems: 'center', justifyContent: 'center',
       perspective: 1200,
     }}>
-      {/* Background - darkens the wall behind */}
+      {/* Background - natural vignette, not modal overlay */}
       <div ref={bgRef} style={{
         position: 'absolute', inset: 0,
-        background: 'rgba(2,3,5,0.92)',
+        background: 'radial-gradient(ellipse 50% 45% at 50% 50%, transparent 0%, rgba(2,3,5,0.6) 100%)',
       }} />
 
       {/* Ambient light from above */}

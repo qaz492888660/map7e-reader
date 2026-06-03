@@ -30,12 +30,12 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, pul
       el.style.filter = 'brightness(1.15)'
       el.style.opacity = '1'
     } else if (isDimmed) {
-      el.style.transform = 'translateZ(-50px) scale(0.92)'
-      el.style.filter = 'brightness(0.35)'
-      el.style.opacity = isMobile ? '0.5' : '0.35'
+      el.style.transform = 'translateZ(-30px) scale(0.96)'
+      el.style.filter = 'brightness(0.65)'
+      el.style.opacity = '0.8'
     } else {
       el.style.transform = 'translateZ(0) scale(1)'
-      el.style.filter = 'brightness(0.6)'
+      el.style.filter = 'brightness(0.85)'
       el.style.opacity = '1'
     }
   }, [isFocused, isDimmed, isMobile])

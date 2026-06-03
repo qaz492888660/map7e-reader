@@ -27,14 +27,14 @@ export default function BookSpine({ book, dimmed, pulled, siblingPulled, pullDir
       el.style.filter = 'brightness(1.2)'
       el.style.opacity = '1'
     } else if (siblingPulled && pullDirection) {
-      const shift = pullDirection === 'left' ? (isMobile ? -15 : -20) : (isMobile ? 15 : 20)
-      el.style.transform = `translateX(${shift}px) translateZ(-10px) rotateZ(${book.tilt}deg)`
-      el.style.filter = isMobile ? 'brightness(0.5)' : 'brightness(0.4) saturate(0.5)'
-      el.style.opacity = isMobile ? '0.6' : '0.5'
+      const shift = pullDirection === 'left' ? (isMobile ? -12 : -16) : (isMobile ? 12 : 16)
+      el.style.transform = `translateX(${shift}px) translateZ(-8px) rotateZ(${book.tilt}deg)`
+      el.style.filter = 'brightness(0.75)'
+      el.style.opacity = '0.85'
     } else if (dimmed) {
       el.style.transform = `rotateZ(${book.tilt}deg)`
-      el.style.filter = 'brightness(0.3) saturate(0.3)'
-      el.style.opacity = '0.4'
+      el.style.filter = 'brightness(0.7)'
+      el.style.opacity = '0.85'
     } else {
       el.style.transform = `rotateZ(${book.tilt}deg)`
       el.style.filter = ''
