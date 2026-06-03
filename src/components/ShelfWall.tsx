@@ -14,7 +14,6 @@ export default function ShelfWall() {
   const [isMobile, setIsMobile] = useState(false)
   const [mobileShelf, setMobileShelf] = useState(0)
   const touchStartY = useRef(0)
-  const touchStartX = useRef(0)
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768)
@@ -23,15 +22,12 @@ export default function ShelfWall() {
     return () => window.removeEventListener('resize', check)
   }, [])
 
-  // Mobile swipe
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY
-    touchStartX.current = e.touches[0].clientX
   }
   const handleTouchEnd = (e: React.TouchEvent) => {
     const dy = e.changedTouches[0].clientY - touchStartY.current
-    const dx = e.changedTouches[0].clientX - touchStartX.current
-    if (Math.abs(dy) > Math.abs(dx) && Math.abs(dy) > 50) {
+    if (Math.abs(dy) > 50) {
       if (dy < 0 && mobileShelf < library.length - 1) setMobileShelf(s => s + 1)
       if (dy > 0 && mobileShelf > 0) setMobileShelf(s => s - 1)
     }
@@ -41,8 +37,7 @@ export default function ShelfWall() {
     <div
       style={{
         width: '100vw', height: '100vh', overflow: 'hidden',
-        background: '#030408',
-        position: 'relative',
+        background: '#030408', position: 'relative',
       }}
       onTouchStart={isMobile ? handleTouchStart : undefined}
       onTouchEnd={isMobile ? handleTouchEnd : undefined}
@@ -54,20 +49,20 @@ export default function ShelfWall() {
       }} />
       <div style={{
         position: 'absolute', inset: 0,
-        background: 'radial-gradient(ellipse 65% 55% at 50% 40%, transparent 25%, rgba(2,3,5,0.7) 70%, rgba(0,0,0,0.92) 100%)',
+        background: 'radial-gradient(ellipse 65% 55% at 50% 40%, transparent 25%, rgba(2,3,5,0.65) 70%, rgba(0,0,0,0.9) 100%)',
       }} />
       {/* Ambient top glow */}
       <div style={{
         position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
-        width: 700, height: 280,
-        background: 'radial-gradient(ellipse, rgba(180,140,60,0.05) 0%, transparent 70%)',
+        width: 600, height: 250,
+        background: 'radial-gradient(ellipse, rgba(180,140,60,0.04) 0%, transparent 70%)',
         pointerEvents: 'none',
       }} />
 
-      {/* Dust particles */}
+      {/* Dust */}
       <DustCanvas />
 
-      {/* Wall container */}
+      {/* Wall */}
       <div style={{
         position: 'absolute', inset: 0,
         display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -75,16 +70,11 @@ export default function ShelfWall() {
         perspectiveOrigin: '50% 38%',
       }}>
         {isMobile ? (
-          /* Mobile: single shelf at a time */
           <div style={{
             width: '100%', height: '100%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            overflow: 'hidden',
           }}>
-            <div style={{
-              transformStyle: 'preserve-3d',
-              width: '92%',
-            }}>
+            <div style={{ transformStyle: 'preserve-3d', width: '92%' }}>
               <ShelfRow
                 index={mobileShelf}
                 label={library[mobileShelf].label}
@@ -93,32 +83,29 @@ export default function ShelfWall() {
                 isDimmed={false}
                 onFocus={focusShelf}
                 onBookPull={pullBook}
-                isMobile
               />
             </div>
-            {/* Mobile shelf indicator */}
+            {/* Mobile indicators */}
             <div style={{
-              position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)',
-              display: 'flex', gap: 8,
+              position: 'absolute', bottom: 18, left: '50%', transform: 'translateX(-50%)',
+              display: 'flex', gap: 7,
             }}>
               {library.map((_, i) => (
                 <div key={i} style={{
-                  width: i === mobileShelf ? 20 : 6, height: 6, borderRadius: 3,
-                  background: i === mobileShelf ? 'rgba(212,160,85,0.6)' : 'rgba(255,255,255,0.15)',
+                  width: i === mobileShelf ? 18 : 5, height: 5, borderRadius: 3,
+                  background: i === mobileShelf ? 'rgba(212,160,85,0.5)' : 'rgba(255,255,255,0.12)',
                   transition: 'all 0.3s ease',
                 }} />
               ))}
             </div>
           </div>
         ) : (
-          /* Desktop: full wall */
           <div style={{
-            display: 'flex', flexDirection: 'column',
-            gap: isMobile ? 24 : 40,
+            display: 'flex', flexDirection: 'column', gap: 36,
             width: '90%', maxWidth: 1100,
             transformStyle: 'preserve-3d',
             transform: 'rotateX(3deg)',
-            padding: '40px 0 60px',
+            padding: '30px 0 50px',
           }}>
             {library.map((shelf, i) => (
               <ShelfRow
@@ -130,40 +117,22 @@ export default function ShelfWall() {
                 isDimmed={focusedShelf !== null && focusedShelf !== i}
                 onFocus={focusShelf}
                 onBookPull={pullBook}
-                isMobile={false}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* Back button when shelf focused */}
-      {phase === 'shelfFocused' && (
-        <button
-          onClick={returnToWall}
-          style={{
-            position: 'absolute', top: 20, left: 20, zIndex: 50,
-            padding: '8px 16px',
-            background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)',
-            borderRadius: 20,
-            color: 'rgba(212,160,85,0.5)', fontSize: 11, letterSpacing: 2,
-            cursor: 'pointer',
-            fontFamily: '"SF Pro Display", system-ui, sans-serif',
-          }}
-        >← 返回书墙</button>
-      )}
-
-      {/* Book focus overlay */}
+      {/* Book focus */}
       {phase === 'bookPulled' && pulledBook && (
         <BookFocus
           book={pulledBook}
-          shelfIndex={focusedShelf ?? 0}
           onEnterReading={enterReading}
           onReturn={returnToWall}
         />
       )}
 
-      {/* Reading portal */}
+      {/* Reading */}
       {phase === 'reading' && pulledBook && (
         <ReadingPortal book={pulledBook} onClose={closeReading} />
       )}
@@ -171,7 +140,6 @@ export default function ShelfWall() {
   )
 }
 
-/* Dust particles */
 function DustCanvas() {
   return (
     <canvas
@@ -182,10 +150,10 @@ function DustCanvas() {
         const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight }
         resize()
         window.addEventListener('resize', resize)
-        const pts = Array.from({ length: 40 }, () => ({
+        const pts = Array.from({ length: 35 }, () => ({
           x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-          s: Math.random() * 1.6 + 0.3,
-          vx: (Math.random() - 0.5) * 0.22, vy: (Math.random() - 0.5) * 0.22 - 0.12,
+          s: Math.random() * 1.5 + 0.3,
+          vx: (Math.random() - 0.5) * 0.2, vy: (Math.random() - 0.5) * 0.2 - 0.1,
           o: 0, l: 0, ml: Math.random() * 200 + 100,
         }))
         let raf: number
@@ -197,20 +165,16 @@ function DustCanvas() {
             const r = p.l / p.ml
             p.o = r < 0.1 ? r * 10 : r > 0.8 ? (1 - r) * 5 : 1
             p.x += p.vx; p.y += p.vy
-            const a = p.o * 0.3
+            const a = p.o * 0.28
             ctx.beginPath(); ctx.arc(p.x, p.y, p.s, 0, Math.PI * 2)
             ctx.fillStyle = `rgba(212,160,85,${a})`; ctx.fill()
-            const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.s * 3)
-            g.addColorStop(0, `rgba(212,160,85,${a * 0.3})`); g.addColorStop(1, 'rgba(212,160,85,0)')
-            ctx.beginPath(); ctx.arc(p.x, p.y, p.s * 3, 0, Math.PI * 2)
-            ctx.fillStyle = g; ctx.fill()
           }
           raf = requestAnimationFrame(draw)
         }
         draw()
         return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) }
       }}
-      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.45 }}
+      style={{ position: 'absolute', inset: 0, pointerEvents: 'none', opacity: 0.4 }}
     />
   )
 }

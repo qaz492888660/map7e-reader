@@ -10,10 +10,9 @@ interface Props {
   isDimmed: boolean
   onFocus: (index: number) => void
   onBookPull: (book: Book) => void
-  isMobile: boolean
 }
 
-export default function ShelfRow({ index, label, books, isFocused, isDimmed, onFocus, onBookPull, isMobile }: Props) {
+export default function ShelfRow({ index, label, books, isFocused, isDimmed, onFocus, onBookPull }: Props) {
   const rootRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -22,13 +21,14 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
     if (isFocused) {
       el.style.transform = 'translateZ(80px) scale(1.06)'
       el.style.filter = 'brightness(1.1)'
+      el.style.opacity = '1'
     } else if (isDimmed) {
-      el.style.transform = 'translateZ(-30px) scale(0.94)'
-      el.style.filter = 'brightness(0.4) blur(2px)'
-      el.style.opacity = '0.5'
+      el.style.transform = 'translateZ(-40px) scale(0.93)'
+      el.style.filter = 'brightness(0.35) blur(1.5px)'
+      el.style.opacity = '0.4'
     } else {
       el.style.transform = 'translateZ(0) scale(1)'
-      el.style.filter = 'brightness(0.7)'
+      el.style.filter = 'brightness(0.65)'
       el.style.opacity = '1'
     }
   }, [isFocused, isDimmed])
@@ -36,7 +36,6 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
   return (
     <div
       ref={rootRef}
-      className="shelf-row-root"
       onClick={() => { if (!isFocused && !isDimmed) onFocus(index) }}
       style={{
         transformStyle: 'preserve-3d',
@@ -45,19 +44,6 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
         position: 'relative',
       }}
     >
-      {/* Shelf label */}
-      <div style={{
-        marginBottom: 6, marginLeft: 4,
-        opacity: isFocused ? 0.9 : 0.35,
-        transition: 'opacity 0.5s ease',
-      }}>
-        <span style={{
-          fontSize: 10, fontWeight: 600, letterSpacing: 3,
-          color: '#d4a055', textTransform: 'uppercase',
-          fontFamily: '"SF Pro Display", "PingFang SC", system-ui, sans-serif',
-        }}>{label}</span>
-      </div>
-
       {/* Books container */}
       <div style={{
         display: 'flex', alignItems: 'flex-end', gap: 6,
@@ -86,7 +72,7 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
         <div style={{
           position: 'absolute', top: 0, left: 0, right: 0, height: 2,
           background: isFocused
-            ? 'linear-gradient(90deg, transparent 4%, rgba(212,160,85,0.22) 30%, rgba(212,160,85,0.35) 50%, rgba(212,160,85,0.22) 70%, transparent 96%)'
+            ? 'linear-gradient(90deg, transparent 4%, rgba(212,160,85,0.2) 30%, rgba(212,160,85,0.3) 50%, rgba(212,160,85,0.2) 70%, transparent 96%)'
             : 'linear-gradient(90deg, transparent 4%, rgba(255,255,255,0.04) 50%, transparent 96%)',
           transition: 'background 0.5s ease',
         }} />
@@ -125,10 +111,10 @@ export default function ShelfRow({ index, label, books, isFocused, isDimmed, onF
 
       {/* Shadow beneath shelf */}
       <div style={{
-        position: 'absolute', bottom: -12, left: '8%', right: '8%', height: 20,
-        background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.45) 0%, transparent 70%)',
+        position: 'absolute', bottom: -14, left: '8%', right: '8%', height: 20,
+        background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.4) 0%, transparent 70%)',
         filter: 'blur(6px)',
-        opacity: isFocused ? 0.9 : 0.4,
+        opacity: isFocused ? 0.85 : 0.35,
         transition: 'opacity 0.5s ease',
         pointerEvents: 'none',
       }} />
