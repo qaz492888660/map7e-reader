@@ -1,6 +1,4 @@
 export default {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
+  // The app uses plain CSS; keep clean installs independent of unused plugins.
+  plugins: {},
 }
