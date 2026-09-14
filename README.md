@@ -36,6 +36,8 @@ npm run test:ui
 
 - 改动前：TypeScript 通过，Vite 因 `postcss.config.js` 引用未声明的 Tailwind 插件而失败。源码未使用 Tailwind，移除无用插件引用后通过。
 - 改动后：构建通过；DOM 检查覆盖 Home→详情→Reader、返回、刷新恢复、目录、字号、字体、主题、分类、作者搜索、空态、损坏存储、不可用存储和异常 URL。
+- 公开站点真实 Chromium 浏览器：360 / 375 / 390 / 430px × 四个主页面，共 16 组无页面横向溢出；768 / 1280px × 四页，另外 8 组也无页面横向溢出。桌面浏览器的部分 iframe 页面有 15px 滚动条占位，可用内容宽度因此略小于窗口宽度。
+- 公开站点原生横向滚轮操作：书架 scrollLeft 从 374 变为 561，中心书籍从《完美世界》切到《遮天》，点击后进入详情；继续阅读、主题面板和 21px 字号切换均验证生效。检查到的应用警告/错误为 0（不计浏览器扩展自身日志）。这不是物理触屏测试。
 - 本地开发服务的 `/`、`/src/main.tsx`、`/src/index.css`、`/maple.svg` 返回 HTTP 200。
 - `npm` 的 `http-proxy` 提示来自执行环境配置；测试依赖的 `whatwg-encoding` 弃用提示来自 jsdom 的传递依赖。均不属于 TypeScript/Vite 编译错误。
 

@@ -103,7 +103,7 @@
             doc.documentElement.scrollWidth,
             doc.body.scrollWidth,
           )
-          status.textContent = `${viewport}px 视口 · ${content}px 内容 · ${content <= viewport ? '无页面横向溢出' : '存在页面横向溢出'}`
+          status.textContent = `${frame.contentWindow.innerWidth}px 窗口 · ${viewport}px 可用宽度 · ${content}px 内容 · ${content <= viewport ? '无页面横向溢出' : '存在页面横向溢出'}`
         } catch {
           status.textContent = '尚无法读取页面，请在加载后重新检查。'
         }
