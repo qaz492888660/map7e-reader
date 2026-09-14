@@ -1387,7 +1387,7 @@ h2 {
   border-color: #3f686b40;
 }
 .motif-3 .cover-title {
-  font-size: 28px;
+  font-size: 24px;
   top: 23%;
   letter-spacing: 0.13em;
 }
@@ -1397,8 +1397,12 @@ h2 {
   letter-spacing: 0.2em;
 }
 .motif-3 .cover-author {
-  top: 51%;
+  top: 62%;
   font-size: 9px;
+}
+.history-cover .motif-3 .cover-title {
+  font-size: 9px;
+  letter-spacing: 0;
 }
 .motif-3 .cover-landscape {
   color: #3d6b6b;
