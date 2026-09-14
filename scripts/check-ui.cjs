@@ -1,6 +1,7 @@
 // Runs the actual production bundle in a DOM environment. No layout engine or
 // physical touch device is emulated: mobile geometry/Safari need browser QA.
 const { JSDOM, VirtualConsole } = require('jsdom')
+const { IDBFactory } = require('fake-indexeddb')
 const { readFileSync } = require('node:fs')
 const assert = require('node:assert/strict')
 const path = require('node:path')
@@ -15,7 +16,12 @@ function check(message, condition) {
   checks++
   console.log(`PASS ${message}`)
 }
-async function launch(hash = '#/home', stored, blocked = false) {
+async function launch(
+  hash = '#/home',
+  stored,
+  blocked = false,
+  database = new IDBFactory(),
+) {
   const errors = []
   const console = new VirtualConsole()
   console.on('jsdomError', (error) => errors.push(error.message))
@@ -30,6 +36,10 @@ async function launch(hash = '#/home', stored, blocked = false) {
     },
   )
   const w = dom.window
+  w.indexedDB = database
+  w.File = File
+  w.Blob = Blob
+  w.TextDecoder = TextDecoder
   w.scrollTo = () => {}
   w.matchMedia = () => ({ matches: false })
   w.ResizeObserver = class {
@@ -100,11 +110,19 @@ async function go(t, hash) {
   )
   check(
     'Home selects the expected central book',
-    t.d.querySelector('.is-current .cover-title').textContent === '完美世界',
+    t.d.querySelector('.is-current .cover-title').textContent === '普通心理学',
   )
-  await click(t, '查看《完美世界》')
+  await click(t, '查看《普通心理学》')
   check(
-    'Book click opens detail before reader',
+    'Real book metadata and missing-content CTA render',
+    t.d.querySelector('h1').textContent === '普通心理学' &&
+      t.d.body.textContent.includes('彭聃龄、陈宝国') &&
+      t.d.body.textContent.includes('第6版') &&
+      !!button(t, '导入书籍开始学习'),
+  )
+  await go(t, '#/book/b03')
+  check(
+    'Demo detail still renders before Reader',
     t.w.location.hash === '#/book/b03' &&
       !!t.d.querySelector('.detail') &&
       !t.d.querySelector('.reader'),
@@ -169,8 +187,8 @@ async function go(t, hash) {
   )
   await go(t, '#/library')
   check(
-    'Library retains all 37 original book entries',
-    t.d.querySelectorAll('.book-slide').length === 37,
+    'Library has 37 demos plus the first real book',
+    t.d.querySelectorAll('.book-slide').length === 38,
   )
   await click(t, '仙侠奇缘')
   check(
@@ -239,6 +257,178 @@ async function go(t, hash) {
     'Malformed URL safely falls back to Home',
     !!t.d.querySelector('.home') && !t.errors.length,
   )
+  t.dom.window.close()
+
+  const database = new IDBFactory()
+  t = await launch('#/reader/general-psychology-6', undefined, false, database)
+  check(
+    'Missing real book never displays demo prose',
+    t.d.body.textContent.includes('正文文件尚未导入') &&
+      !t.d.querySelector('article') &&
+      !t.d.body.textContent.includes('云停在窗边'),
+  )
+  await click(t, '导入私人书籍文件')
+  check(
+    'File input accepts TXT and EPUB',
+    t.d.querySelector('input[type=file]').accept.includes('.epub') &&
+      t.d.querySelector('input[type=file]').accept.includes('.txt'),
+  )
+  async function choose(t, file) {
+    const element = t.d.querySelector('input[type=file]')
+    Object.defineProperty(element, 'files', {
+      configurable: true,
+      value: [file],
+    })
+    element.dispatchEvent(new t.w.Event('change', { bubbles: true }))
+    await pause()
+    await pause()
+  }
+  await choose(t, new File([''], 'empty.txt'))
+  check(
+    'Empty file is rejected before saving',
+    t.d.querySelector('[role=alert]').textContent.includes('非空'),
+  )
+  await choose(t, new File(['wrong'], 'wrong.pdf'))
+  check(
+    'Unsupported PDF is rejected',
+    t.d.querySelector('[role=alert]').textContent.includes('TXT 或 EPUB'),
+  )
+  const fixture =
+    '第一章 私人导入测试\n这不是教材原文，只是验证导入流程的测试文本。\n<script>window.injected=true</script>\n第二章 位置恢复测试\n' +
+    '用于确认阅读进度的测试段落。\n'.repeat(100)
+  await choose(
+    t,
+    new File([fixture], 'map7e-test-only.txt', { type: 'text/plain' }),
+  )
+  check(
+    'TXT preview includes only the selected file',
+    t.d
+      .querySelector('.import-preview')
+      .textContent.includes('这不是教材原文') &&
+      t.d.querySelector('.import-preview').textContent.includes('2 个阅读分段'),
+  )
+  await click(t, '确认导入并开始阅读')
+  check(
+    'TXT opens as private content and renders markup as text',
+    t.d
+      .querySelector('.reader-content')
+      .textContent.includes('<script>window.injected=true</script>') &&
+      !t.w.injected &&
+      !t.d.body.textContent.includes('演示正文 · 非原著内容'),
+  )
+  await click(t, '目录')
+  const entries = t.d.querySelectorAll('.contents-list button')
+  check(
+    'Reader TOC comes from this file',
+    entries.length === 2 &&
+      entries[1].textContent.includes('第二章 位置恢复测试'),
+  )
+  entries[1].click()
+  await pause()
+  const privateScroll = t.d.querySelector('.reader-scroll')
+  Object.defineProperties(privateScroll, {
+    scrollHeight: { value: 2000 },
+    clientHeight: { value: 500 },
+  })
+  privateScroll.scrollTop = 600
+  privateScroll.dispatchEvent(new t.w.Event('scroll'))
+  await pause()
+  t.w.dispatchEvent(new t.w.Event('pagehide'))
+  await pause()
+  const checkpoint = t.w.localStorage.getItem(key)
+  check(
+    'Large body never enters localStorage',
+    !checkpoint.includes('这不是教材原文') &&
+      !checkpoint.includes('用于确认阅读进度'),
+  )
+  await go(t, '#/home')
+  await click(t, '继续阅读')
+  check(
+    'Continue Reading goes directly to the saved private chapter',
+    t.w.location.hash === '#/reader/general-psychology-6' &&
+      t.d.querySelector('h1').textContent === '第二章 位置恢复测试' &&
+      !t.d.querySelector('.detail'),
+  )
+  check(
+    'Continue Reading restores scroll fraction',
+    Number(t.d.querySelector('progress').value) > 0.69,
+  )
+  t.dom.window.close()
+  // No localStorage checkpoint: prove metadata, chapters and position persist in IDB.
+  t = await launch('#/reader/general-psychology-6', undefined, false, database)
+  check(
+    'Refresh recovers private text and position from IndexedDB alone',
+    t.d.querySelector('h1').textContent === '第二章 位置恢复测试' &&
+      Number(t.d.querySelector('progress').value) > 0.69,
+  )
+  await go(t, '#/book/general-psychology-6')
+  check(
+    'Imported book detail shows readable state and file TOC',
+    !!button(t, '继续阅读') &&
+      t.d
+        .querySelector('.detail-contents')
+        .textContent.includes('第二章 位置恢复测试'),
+  )
+  await click(t, '替换私人书籍文件')
+  await choose(
+    t,
+    new File(
+      ['第一章 新文件\n这是一份新的导入测试文本。'],
+      'replacement-test.txt',
+    ),
+  )
+  check(
+    'Replacement explicitly warns about progress reset',
+    !!t.d.querySelector('.import-warning'),
+  )
+  await click(t, '确认导入并开始阅读')
+  check(
+    'Replacement resets old chapter and shows only new text',
+    t.d.querySelector('h1').textContent === '第一章 新文件' &&
+      Number(t.d.querySelector('progress').value) === 0 &&
+      !t.d.body.textContent.includes('用于确认阅读进度'),
+  )
+  await go(t, '#/book/general-psychology-6')
+  await click(t, '替换私人书籍文件')
+  await choose(
+    t,
+    new File([new Uint8Array([80, 75, 3, 4, 0, 0])], 'container-test.epub'),
+  )
+  check(
+    'EPUB preview clearly states no parser is available',
+    !!button(t, '仅保存 EPUB 文件') &&
+      t.d
+        .querySelector('.import-preview')
+        .textContent.includes('等待后续解析支持'),
+  )
+  await click(t, '仅保存 EPUB 文件')
+  await go(t, '#/reader/general-psychology-6')
+  check(
+    'Stored EPUB never renders previous TXT or demo content',
+    t.d.body.textContent.includes('EPUB 文件已保存在本机') &&
+      !t.d.querySelector('article'),
+  )
+  check('Private import flow has no runtime errors', !t.errors.length)
+  t.dom.window.close()
+  t = await launch('#/reader/general-psychology-6', undefined, false, undefined)
+  // Simulate quota denial after successful opening/preview, without a real upload.
+  await click(t, '导入私人书籍文件')
+  await choose(
+    t,
+    new File(['第一章 失败测试\n仅用于模拟保存失败。'], 'quota-test.txt'),
+  )
+  const originalOpen = t.w.indexedDB.open.bind(t.w.indexedDB)
+  t.w.indexedDB.open = () => {
+    throw new Error('QuotaExceededError')
+  }
+  await click(t, '确认导入并开始阅读')
+  check(
+    'Storage failure keeps the preview and reports failure instead of success',
+    !!t.d.querySelector('.import-preview') &&
+      t.d.querySelector('[role=alert]').textContent.includes('保存失败') &&
+      !t.d.querySelector('article'),
+  )
+  t.w.indexedDB.open = originalOpen
   t.dom.window.close()
   console.log(
     `\n${checks} checks passed. DOM-only: no claims about real touch, layout, or FPS.`,

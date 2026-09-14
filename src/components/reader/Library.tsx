@@ -30,7 +30,7 @@ export default function Library({
   const filtered = books.filter(
     (b) =>
       (category === '全部' || b.category === category) &&
-      `${b.title}${b.author}`
+      `${b.title}${b.edition || ''}${b.author}${b.tags?.join('') || ''}`
         .toLowerCase()
         .includes(query.trim().toLowerCase()),
   )
@@ -73,7 +73,7 @@ export default function Library({
       <div className="collection-note">
         <Icon name="leaf" />
         <p>书页有尽头，想象没有。</p>
-        <span>{filtered.length} 本书 · 示例书库</span>
+        <span>{filtered.length} 本书 · 私人书籍与演示藏书</span>
       </div>
     </main>
   )

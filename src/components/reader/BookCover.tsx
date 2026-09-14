@@ -15,9 +15,13 @@ export default function BookCover({ book }: { book: Book }) {
         <img src={book.cover.imageUrl} alt="" draggable={false} />
       ) : (
         <>
-          <span className="cover-edition">MAP7E · 私藏</span>
+          <span className="cover-edition">
+            {book.edition || 'MAP7E · 私藏'}
+          </span>
           <span className="cover-title">{book.title}</span>
-          <span className="cover-author">{book.author}</span>
+          <span className="cover-author">
+            {book.author.replace('、', ' / ')}
+          </span>
           <svg
             className="cover-landscape"
             viewBox="0 0 200 180"
@@ -41,7 +45,9 @@ export default function BookCover({ book }: { book: Book }) {
               opacity=".45"
             />
           </svg>
-          <span className="cover-imprint">藏 一 个 世 界</span>
+          <span className="cover-imprint">
+            {book.learningStage ? 'MAP7E · 第一册' : '藏 一 个 世 界'}
+          </span>
         </>
       )}
     </div>

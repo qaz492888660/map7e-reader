@@ -7,7 +7,7 @@ import {
 } from 'react'
 import type {
   Book,
-  Chapter,
+  BookContent,
   ReaderSettings,
   ReadingPosition,
 } from '../../types/book'
@@ -16,7 +16,8 @@ import Sheet from './Sheet'
 import Icon from './Icon'
 interface Props {
   book: Book
-  chapters: Chapter[]
+  content: BookContent
+  storageError: boolean
   position?: ReadingPosition
   settings: ReaderSettings
   onSettings: (s: ReaderSettings) => void
@@ -25,25 +26,37 @@ interface Props {
 }
 export default function Reader({
   book,
-  chapters,
+  content,
+  storageError,
   position,
   settings,
   onSettings,
   onPosition,
   onBack,
 }: Props) {
-  const initial = Math.min(position?.chapter ?? 0, chapters.length - 1)
+  const chapters = content.chapters
+  const byId = chapters.findIndex((c) => c.id === position?.chapterId)
+  const initial =
+    byId >= 0
+      ? byId
+      : Math.max(0, Math.min(position?.chapter ?? 0, chapters.length - 1))
   const [chapterIndex, setChapter] = useState(initial)
   const [fraction, setFraction] = useState(position?.fraction ?? 0)
   const [panel, setPanel] = useState<'contents' | 'font' | 'theme' | null>(null)
   const scroll = useRef<HTMLDivElement>(null)
-  const restored = useRef(false)
+  const previousChapter = useRef(initial)
+  const saveTimer = useRef<ReturnType<typeof setTimeout>>()
   const latest = useRef({ chapter: initial, fraction: position?.fraction ?? 0 })
   const callback = useRef(onPosition)
   callback.current = onPosition
   const chapter = chapters[chapterIndex]
   function publish() {
-    callback.current({ ...latest.current, updatedAt: Date.now() })
+    callback.current({
+      ...latest.current,
+      chapterId: chapters[latest.current.chapter].id,
+      contentRevision: content.revision,
+      updatedAt: Date.now(),
+    })
   }
   useEffect(() => {
     const visibility = () => {
@@ -53,6 +66,7 @@ export default function Reader({
     document.addEventListener('visibilitychange', visibility)
     publish()
     return () => {
+      clearTimeout(saveTimer.current)
       publish()
       window.removeEventListener('pagehide', publish)
       document.removeEventListener('visibilitychange', visibility)
@@ -61,8 +75,9 @@ export default function Reader({
   useLayoutEffect(() => {
     const el = scroll.current
     if (!el) return
-    const target = restored.current ? 0 : latest.current.fraction
-    restored.current = true
+    const target =
+      previousChapter.current === chapterIndex ? latest.current.fraction : 0
+    previousChapter.current = chapterIndex
     latest.current = { chapter: chapterIndex, fraction: target }
     setFraction(target)
     el.scrollTop = target * Math.max(0, el.scrollHeight - el.clientHeight)
@@ -102,10 +117,16 @@ export default function Reader({
                 )
           latest.current = { chapter: chapterIndex, fraction: value }
           setFraction(value)
+          clearTimeout(saveTimer.current)
+          saveTimer.current = setTimeout(publish, 250)
         }}
       >
         <article className="reader-content">
-          <div className="eyebrow">演示正文 · 非原著内容</div>
+          <div className="eyebrow">
+            {content.format === 'demo'
+              ? '演示正文 · 非原著内容'
+              : '私人导入 · ' + (book.edition || book.title)}
+          </div>
           <span className="chapter-number">
             {String(chapterIndex + 1).padStart(2, '0')}
           </span>
@@ -141,12 +162,17 @@ export default function Reader({
           </nav>
         </article>
       </div>
+      {storageError && (
+        <p className="reader-save-error" role="status">
+          阅读位置暂时未能完整保存，请保留当前页面。
+        </p>
+      )}
       <footer className="reader-toolbar">
         <div className="reader-progress">
           <span>
             {chapterIndex + 1} / {chapters.length} 章
           </span>
-          <progress max={1} value={total} aria-label="当前演示阅读进度" />
+          <progress max={1} value={total} aria-label="当前阅读进度" />
           <span>{Math.round(total * 100)}%</span>
         </div>
         <nav aria-label="阅读工具">

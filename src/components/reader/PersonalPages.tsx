@@ -38,7 +38,8 @@ export function ReadingHistory({
                 <strong>{book.title}</strong>
                 <small>{book.author}</small>
                 <small>
-                  演示正文 · 读至 {Math.round(progress(book) * 100)}%
+                  {book.sourceType === 'demo' ? '演示正文' : '私人书籍'} · 读至{' '}
+                  {Math.round(progress(book) * 100)}%
                 </small>
               </span>
               <Icon name="arrow" />
@@ -97,7 +98,7 @@ export function Settings({
         <p className="settings-note">
           {storageError
             ? '当前浏览器无法保存设置；本次打开期间仍可使用。'
-            : '阅读设置与演示进度保存在当前浏览器。清除网站数据后会重置。'}
+            : '设置、私人文件与阅读进度仅保存在当前浏览器。清除网站数据后将丢失，请保留原始文件备份。'}
         </p>
       </section>
       <footer className="collection-note">

@@ -20,7 +20,10 @@ export default function Sheet({
       ref={ref}
       className="sheet"
       aria-label={title}
-      onCancel={onClose}
+      onCancel={(e) => {
+        e.preventDefault()
+        onClose()
+      }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose()
       }}

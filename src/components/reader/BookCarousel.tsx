@@ -24,6 +24,8 @@ export default function BookCarousel({
   )
   const [current, setCurrent] = useState(active)
   const currentIndex = useRef(active)
+  const [caption, setCaption] = useState(active)
+  const settleTimer = useRef<ReturnType<typeof setTimeout>>()
   const frame = useRef(0)
   const dragStart = useRef({ x: 0, y: 0, moved: false })
   const signature = books.map((b) => b.id).join('|')
@@ -40,6 +42,7 @@ export default function BookCarousel({
   }
   useLayoutEffect(() => {
     setCurrent(active)
+    setCaption(active)
     currentIndex.current = active
     center(active, false)
     const observer = new ResizeObserver(() =>
@@ -49,6 +52,7 @@ export default function BookCarousel({
     return () => {
       observer.disconnect()
       cancelAnimationFrame(frame.current)
+      clearTimeout(settleTimer.current)
     }
     // Re-center only when the collection changes; selection follows native scrolling.
   }, [signature])
@@ -75,9 +79,11 @@ export default function BookCarousel({
       setCurrent(nearest)
       currentIndex.current = nearest
       if (books[nearest]) onSelect(books[nearest].id)
+      clearTimeout(settleTimer.current)
+      settleTimer.current = setTimeout(() => setCaption(nearest), 140)
     })
   }
-  const book = books[current] || books[0]
+  const book = books[caption] || books[0]
   if (!book) return <p className="empty-state">书架空着，换一个关键词试试。</p>
   return (
     <section
@@ -137,11 +143,15 @@ export default function BookCarousel({
       </div>
       <div className="glass-shelf" aria-hidden="true" />
       <div className="carousel-caption" aria-live="polite" aria-atomic="true">
-        <h2>{book.title}</h2>
+        <h2 key={book.id}>
+          {book.title}
+          {book.edition && <small>{book.edition}</small>}
+        </h2>
         <p>
           {book.author} <span>·</span> {book.category}
         </p>
       </div>
+      {book.learningStage && <p className="shelf-bookmark">{book.tags?.[0]}</p>}
       <div className="carousel-controls">
         <button
           className="icon-button"

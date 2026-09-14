@@ -6,6 +6,8 @@ interface Props {
   selectedId: string
   onSelect: (id: string) => void
   onOpen: (book: Book) => void
+  onResume: () => void
+  hasPosition: boolean
   onNavigate: (page: 'library' | 'history' | 'settings') => void
   resume: Book
   progress: number
@@ -17,6 +19,8 @@ export default function Home({
   onSelect,
   onOpen,
   onNavigate,
+  onResume,
+  hasPosition,
   resume,
   progress,
   motion,
@@ -34,7 +38,7 @@ export default function Home({
       </header>
       <section className="greeting">
         <div className="eyebrow">
-          <span /> SOMEWHERE IN THE CLOUDS
+          <span /> A ROOM ABOVE THE CLOUDS
         </div>
         <h1 tabIndex={-1}>
           你好，枫<span>。</span>
@@ -53,12 +57,19 @@ export default function Home({
         motion={motion}
       />
       <nav className="bubble-nav" aria-label="书房入口">
-        <button className="bubble bubble-resume" onClick={() => onOpen(resume)}>
+        <button
+          className="bubble bubble-resume"
+          aria-label="继续阅读"
+          onClick={onResume}
+        >
           <Icon name="book" />
           <span className="bubble-label">继续阅读</span>
           <span className="bubble-book">{resume.title}</span>
           <span className="bubble-meta">
-            读至 {Math.round(progress * 100)}% <Icon name="arrow" />
+            {hasPosition
+              ? `读至 ${Math.round(progress * 100)}%`
+              : '从第一本学习书开始'}{' '}
+            <Icon name="arrow" />
           </span>
         </button>
         <button
