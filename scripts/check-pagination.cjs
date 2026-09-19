@@ -43,7 +43,7 @@ check('Chinese script display converts without mutating the source string', () =
 check('Display offsets map back to stable original-text offsets', () => {
   assert.equal(displayOffsetToSource('群眾心理', '群众心理', 2), 2)
   assert.equal(displayOffsetToSource('abcdef', 'abc', 2), 4)
-  assert.equal(displayOffsetToSource('🍁字', '枫字', 1), 0)
+  assert.equal(displayOffsetToSource('🍁字', '枫字', 1), 2)
 })
 const content = {
   bookId: 'fixture',
