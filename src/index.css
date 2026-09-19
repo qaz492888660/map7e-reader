@@ -1184,6 +1184,30 @@ h2 {
 .sheet::backdrop {
   background: #1a2c3a45;
 }
+/* Reader tools use a translucent glass surface so the current page stays
+   visually present underneath. Other Sheet usages keep the solid surface. */
+.paged-reader .sheet {
+  background: color-mix(
+    in srgb,
+    var(--reader-bg, #f5f1e8) 68%,
+    transparent
+  );
+  border-color: #ffffff57;
+  box-shadow:
+    0 -12px 50px #19313c12,
+    inset 0 1px 0 #ffffff38;
+  -webkit-backdrop-filter: blur(22px) saturate(115%);
+  backdrop-filter: blur(22px) saturate(115%);
+}
+.paged-reader .sheet::backdrop {
+  background: #1a2c3a24;
+}
+.paged-reader.theme-night .sheet {
+  border-color: #ffffff22;
+  box-shadow:
+    0 -12px 50px #0000002b,
+    inset 0 1px 0 #ffffff14;
+}
 .sheet-inner {
   padding: 14px max(24px, env(safe-area-inset-right, 0px))
     calc(30px + env(safe-area-inset-bottom, 0px))
