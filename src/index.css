@@ -17,6 +17,19 @@
     linear-gradient(180deg, #cedfe7 0%, #e6eeef 48%, #edece2 100%);
   --app-background: var(--sky-background);
 }
+/* Match Home's outer edges to Safari's single-color browser chrome. */
+:root:has(.home) {
+  --sky-background:
+    linear-gradient(
+      180deg,
+      #dfe7e6 0%,
+      #dfe7e600 11%,
+      #dfe7e600 87%,
+      #dfe7e6 100%
+    ),
+    radial-gradient(ellipse at 88% 12%, #fff4dc90, transparent 43%),
+    linear-gradient(180deg, #cedfe7 0%, #e6eeef 48%, #edece2 100%);
+}
 *,
 *::before,
 *::after {
@@ -1307,6 +1320,14 @@ h2 {
   top: -15%;
   background: radial-gradient(ellipse, #fff4cc90, transparent 65%);
 }
+:root:has(.home) .sky-light {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    transparent 30%,
+    #000 55%
+  );
+  mask-image: linear-gradient(180deg, transparent 30%, #000 55%);
+}
 .sky-distance {
   position: absolute;
   bottom: 15%;
@@ -1322,6 +1343,14 @@ h2 {
   background:
     radial-gradient(ellipse at 20% 80%, #f4eddbb0, transparent 60%),
     linear-gradient(0deg, #eaece4cc, transparent);
+}
+:root:has(.home) .sky-horizon {
+  -webkit-mask-image: linear-gradient(
+    180deg,
+    #000 70%,
+    transparent 100%
+  );
+  mask-image: linear-gradient(180deg, #000 70%, transparent 100%);
 }
 .cloud-one {
   opacity: 0.85;
