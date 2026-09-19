@@ -21,6 +21,7 @@ import PageHeader from './PageHeader'
 import Sheet from './Sheet'
 import Icon from './Icon'
 import { convertText } from '../../services/textScript'
+import OceanBackground from './OceanBackground'
 interface Props {
   book: Book
   content: BookContent
@@ -158,7 +159,7 @@ export default function Reader({
   const atStart = chapterIndex === 0 && pagination.page === 0
   return (
     <main
-      className={`reader paged-reader theme-${settings.theme} ${settings.motion ? '' : 'motion-paused'}`}
+      className={`reader paged-reader theme-${settings.theme} ambience-${settings.ambience} ${settings.motion ? '' : 'motion-paused'}`}
       style={
         {
           '--reading-size': `${settings.fontSize}px`,
@@ -167,6 +168,9 @@ export default function Reader({
         } as CSSProperties
       }
     >
+      {settings.ambience === 'ocean' && (
+        <OceanBackground motion={settings.motion} variant="reader" />
+      )}
       <div
         className={`reader-stage font-${settings.fontFamily}`}
         role="region"
@@ -398,7 +402,12 @@ export default function Reader({
             </>
           )}
           {(panel === 'theme' || panel === 'settings') && (
-            <ThemeOptions settings={settings} onSettings={onSettings} />
+            <>
+              <p className="setting-label">阅读底色</p>
+              <ThemeOptions settings={settings} onSettings={onSettings} />
+              <p className="setting-label">氛围</p>
+              <AmbienceOptions settings={settings} onSettings={onSettings} />
+            </>
           )}
         </Sheet>
       )}
@@ -425,6 +434,28 @@ export function ScriptOptions({
           </button>
         ),
       )}
+    </div>
+  )
+}
+
+export function AmbienceOptions({
+  settings,
+  onSettings,
+}: {
+  settings: ReaderSettings
+  onSettings: (s: ReaderSettings) => void
+}) {
+  return (
+    <div className="option-row ambience-options">
+      {(['sky', 'ocean'] as const).map((ambience, i) => (
+        <button
+          key={ambience}
+          aria-pressed={settings.ambience === ambience}
+          onClick={() => onSettings({ ...settings, ambience })}
+        >
+          {['天空', '海洋'][i]}
+        </button>
+      ))}
     </div>
   )
 }
