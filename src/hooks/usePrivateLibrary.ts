@@ -1,15 +1,22 @@
 import { useEffect, useState } from 'react'
-import type { PrivateBookRecord, ReadingPosition } from '../types/book'
+import type {
+  PrivateBookRecord,
+  ReadingPosition,
+  StoredReadingPosition,
+} from '../types/book'
 import {
   loadLibrary,
+  removePrivateBook,
   storePrivateBook,
   storePrivatePosition,
 } from '../services/privateBooks'
 export function usePrivateLibrary() {
-  const [records, setRecords] = useState<Record<string, PrivateBookRecord>>({})
-  const [positions, setPositions] = useState<Record<string, ReadingPosition>>(
+  const [records, setRecords] = useState<Record<string, PrivateBookRecord>>(
     {},
   )
+  const [positions, setPositions] = useState<
+    Record<string, StoredReadingPosition>
+  >({})
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [attempt, setAttempt] = useState(0)
@@ -19,7 +26,9 @@ export function usePrivateLibrary() {
     loadLibrary()
       .then((data) => {
         if (!active) return
-        setRecords(Object.fromEntries(data.records.map((r) => [r.bookId, r])))
+        setRecords(
+          Object.fromEntries(data.records.map((r) => [r.bookId, r])),
+        )
         setPositions(
           Object.fromEntries(data.positions.map((p) => [p.bookId, p])),
         )
@@ -48,6 +57,20 @@ export function usePrivateLibrary() {
       setPositions((old) => {
         const next = { ...old }
         delete next[record.bookId]
+        return next
+      })
+      setError('')
+    },
+    removeRecord: async (bookId: string) => {
+      await removePrivateBook(bookId)
+      setRecords((old) => {
+        const next = { ...old }
+        delete next[bookId]
+        return next
+      })
+      setPositions((old) => {
+        const next = { ...old }
+        delete next[bookId]
         return next
       })
       setError('')

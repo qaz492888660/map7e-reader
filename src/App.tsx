@@ -4,6 +4,11 @@ import { usePage } from './hooks/usePage'
 import { useReaderState } from './hooks/useReaderState'
 import { usePrivateLibrary } from './hooks/usePrivateLibrary'
 import type { Book, ReadingPosition } from './types/book'
+import {
+  positionAtProgress,
+  readingProgress,
+  resolvePosition,
+} from './services/readingPosition'
 import Home from './components/reader/Home'
 import Library from './components/reader/Library'
 import BookDetail from './components/reader/BookDetail'
@@ -22,7 +27,8 @@ export default function App() {
     book.sourceType === 'private' && privateLibrary.records[book.id]
       ? {
           ...book,
-          availability: privateLibrary.records[book.id].metadata.availability,
+          availability:
+            privateLibrary.records[book.id].metadata.availability,
           chapters: privateLibrary.records[book.id].metadata.chapters,
         }
       : book,
@@ -34,7 +40,10 @@ export default function App() {
   const positions: Record<string, ReadingPosition> = {}
   for (const book of books) {
     const content = contentFor(book)
-    const valid = [saved.positions[book.id], privateLibrary.positions[book.id]]
+    const valid = [
+      saved.positions[book.id],
+      privateLibrary.positions[book.id],
+    ]
       .filter(
         (p) =>
           p &&
@@ -43,9 +52,9 @@ export default function App() {
             p.contentRevision === content.revision),
       )
       .sort((a, b) => b.updatedAt - a.updatedAt)
-    if (valid[0]) positions[book.id] = valid[0]
+    if (valid[0] && content)
+      positions[book.id] = resolvePosition(content, valid[0])
   }
-  const [homeBook, setHomeBook] = useState(catalog[0].id)
   const [libraryBook, setLibraryBook] = useState(catalog[0].id)
   const [query, setQuery] = useState('')
   const [category, setCategory] = useState('全部')
@@ -63,15 +72,13 @@ export default function App() {
     const position = positions[book.id]
     const content = contentFor(book)
     return position && content?.chapters.length
-      ? Math.min(
-          1,
-          (position.chapter + position.fraction) / content.chapters.length,
-        )
+      ? readingProgress(content, position)
       : book.readingProgress
   }
   function savePosition(book: Book, p: ReadingPosition) {
     saved.savePosition(book.id, p)
-    if (book.sourceType === 'private') privateLibrary.savePosition(book.id, p)
+    if (book.sourceType === 'private')
+      privateLibrary.savePosition(book.id, p)
   }
   const open = (book: Book) => navigate({ name: 'book', bookId: book.id })
   function read(book: Book, restart = false) {
@@ -81,30 +88,29 @@ export default function App() {
       return
     }
     if (restart || !positions[book.id]) {
-      const offset = restart
-        ? 0
-        : book.readingProgress >= 1
-          ? 0
-          : book.readingProgress * content.chapters.length
-      savePosition(book, {
-        chapter: Math.floor(offset),
-        chapterId: content.chapters[Math.floor(offset)].id,
-        fraction: offset % 1,
-        updatedAt: Date.now(),
-        contentRevision: content.revision,
-      })
+      savePosition(
+        book,
+        positionAtProgress(
+          content,
+          restart || book.readingProgress >= 1 ? 0 : book.readingProgress,
+        ),
+      )
     }
     navigate({ name: 'reader', bookId: book.id })
   }
   useEffect(() => {
     document.title = `${selected ? selected.title + ' · ' : ''}MAP7E Reader`
     window.scrollTo(0, 0)
-    document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true })
+    document
+      .querySelector<HTMLElement>('h1')
+      ?.focus({ preventScroll: true })
     setImporting(null)
   }, [page.name, selected?.id])
   const selectedContent = selected && contentFor(selected)
-  const loading = selected?.sourceType === 'private' && privateLibrary.loading
-  const error = selected?.sourceType === 'private' ? privateLibrary.error : ''
+  const loading =
+    selected?.sourceType === 'private' && privateLibrary.loading
+  const error =
+    selected?.sourceType === 'private' ? privateLibrary.error : ''
   return (
     <>
       {page.name === 'reader' && selected ? (
@@ -128,6 +134,7 @@ export default function App() {
             error={error}
             onImport={() => setImporting(selected.id)}
             onRetry={privateLibrary.retry}
+            onSettings={() => navigate({ name: 'settings' })}
             onBack={back}
           />
         )
@@ -146,14 +153,9 @@ export default function App() {
           <div className="space-content">
             {page.name === 'home' && (
               <Home
-                books={[books[1], books[2], books[0], ...books.slice(3, 8)]}
-                selectedId={homeBook}
-                onSelect={setHomeBook}
-                onOpen={open}
                 onNavigate={(name) => navigate({ name })}
                 resume={recent}
                 progress={progress(recent)}
-                motion={settings.motion}
                 hasPosition={!!positions[recent.id]}
                 onResume={() =>
                   positions[recent.id] ? read(recent) : open(recent)
@@ -172,6 +174,7 @@ export default function App() {
                 category={category}
                 onQuery={setQuery}
                 onCategory={setCategory}
+                onSettings={() => navigate({ name: 'settings' })}
               />
             )}
             {page.name === 'book' && selected && (
@@ -184,6 +187,11 @@ export default function App() {
                 loading={!!loading}
                 error={error}
                 onRetry={privateLibrary.retry}
+                onSettings={() => navigate({ name: 'settings' })}
+                onRemove={async () => {
+                  await privateLibrary.removeRecord(selected.id)
+                  saved.removePosition(selected.id)
+                }}
               />
             )}
             {page.name === 'history' && (
@@ -193,6 +201,7 @@ export default function App() {
                 progress={progress}
                 onOpen={open}
                 onBack={back}
+                onSettings={() => navigate({ name: 'settings' })}
               />
             )}
             {page.name === 'settings' && (
@@ -234,9 +243,9 @@ export default function App() {
             await privateLibrary.importRecord(record)
             if (record.content) {
               savePosition(importing, {
-                chapter: 0,
+                paragraphIndex: 0,
+                characterOffset: 0,
                 chapterId: record.content.chapters[0].id,
-                fraction: 0,
                 updatedAt: Date.now(),
                 contentRevision: record.revision,
               })

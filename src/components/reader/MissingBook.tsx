@@ -9,6 +9,7 @@ export default function MissingBook({
   onImport,
   onRetry,
   onBack,
+  onSettings,
 }: {
   book: Book
   settings: ReaderSettings
@@ -17,10 +18,16 @@ export default function MissingBook({
   onImport: () => void
   onRetry: () => void
   onBack: () => void
+  onSettings: () => void
 }) {
   return (
     <main className={`reader missing-reader theme-${settings.theme}`}>
-      <PageHeader title={book.title} onBack={onBack} note={book.edition} />
+      <PageHeader
+        title={book.title}
+        onBack={onBack}
+        onSettings={onSettings}
+        note={book.edition}
+      />
       <section className="missing-content">
         <Icon name="book" />
         <div className="eyebrow">{book.tags?.[0] || '私人藏书'}</div>
@@ -34,7 +41,7 @@ export default function MissingBook({
         <p>
           {error ||
             (book.availability === 'stored'
-              ? 'EPUB 文件已保存在本机，本轮尚不支持解析。你可以改为导入 TXT 开始阅读。'
+              ? 'EPUB 文件已保存在本机，但当前尚未解析，不能阅读。你可以改为导入 TXT 开始阅读。'
               : '这里为你的学习留了一个位置。导入有权使用的私人文件后，再从第一章开始。')}
         </p>
         {!loading &&

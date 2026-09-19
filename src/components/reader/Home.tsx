@@ -1,29 +1,18 @@
 import type { Book } from '../../types/book'
-import BookCarousel from './BookCarousel'
 import Icon from './Icon'
 interface Props {
-  books: Book[]
-  selectedId: string
-  onSelect: (id: string) => void
-  onOpen: (book: Book) => void
   onResume: () => void
   hasPosition: boolean
   onNavigate: (page: 'library' | 'history' | 'settings') => void
   resume: Book
   progress: number
-  motion: boolean
 }
 export default function Home({
-  books,
-  selectedId,
-  onSelect,
-  onOpen,
   onNavigate,
   onResume,
   hasPosition,
   resume,
   progress,
-  motion,
 }: Props) {
   return (
     <main className="home page">
@@ -45,17 +34,6 @@ export default function Home({
         </h1>
         <p>留一点时间，给另一个世界。</p>
       </section>
-      <div className="section-label">
-        <span>云间书架</span>
-        <span className="quiet">左右轻滑，挑一本书</span>
-      </div>
-      <BookCarousel
-        books={books}
-        selectedId={selectedId}
-        onSelect={onSelect}
-        onOpen={onOpen}
-        motion={motion}
-      />
       <nav className="bubble-nav" aria-label="书房入口">
         <button
           className="bubble bubble-resume"
@@ -74,10 +52,11 @@ export default function Home({
         </button>
         <button
           className="bubble bubble-library"
+          aria-label="我的书库"
           onClick={() => onNavigate('library')}
         >
           <Icon name="book" />
-          <span className="bubble-label">书库</span>
+          <span className="bubble-label">我的书库</span>
           <span className="bubble-meta">我的收藏</span>
         </button>
         <button

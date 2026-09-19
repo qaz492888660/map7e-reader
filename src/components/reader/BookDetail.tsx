@@ -1,3 +1,5 @@
+import { useState } from 'react'
+import Sheet from './Sheet'
 import type { Book } from '../../types/book'
 import BookCover from './BookCover'
 import PageHeader from './PageHeader'
@@ -11,6 +13,8 @@ export default function BookDetail({
   loading,
   error,
   onRetry,
+  onRemove,
+  onSettings,
 }: {
   book: Book
   progress: number
@@ -20,10 +24,19 @@ export default function BookDetail({
   loading: boolean
   error: string
   onRetry: () => void
+  onRemove: () => Promise<void>
+  onSettings: () => void
 }) {
+  const [confirmRemove, setConfirmRemove] = useState(false)
+  const [removing, setRemoving] = useState(false)
+  const [removeError, setRemoveError] = useState('')
   return (
     <main className="detail page">
-      <PageHeader title="书的一页" onBack={onBack} />
+      <PageHeader
+        title="书的一页"
+        onBack={onBack}
+        onSettings={onSettings}
+      />
       <div className="detail-cover">
         <BookCover book={book} />
       </div>
@@ -61,7 +74,11 @@ export default function BookDetail({
           className="primary-button"
           disabled={loading}
           onClick={
-            error ? onRetry : book.availability === 'ready' ? onRead : onImport
+            error
+              ? onRetry
+              : book.availability === 'ready'
+                ? onRead
+                : onImport
           }
         >
           <Icon name="book" />
@@ -78,16 +95,28 @@ export default function BookDetail({
                     : '开始阅读'}
           <Icon name="arrow" />
         </button>
-        {book.sourceType === 'private' && book.availability !== 'missing' && (
-          <button className="text-button" onClick={onImport}>
-            替换私人书籍文件
-          </button>
-        )}
+        {book.sourceType === 'private' &&
+          book.availability !== 'missing' && (
+            <div className="private-file-actions">
+              <button className="text-button" onClick={onImport}>
+                替换私人书籍文件
+              </button>
+              <button
+                className="text-button remove-file"
+                onClick={() => {
+                  setRemoveError('')
+                  setConfirmRemove(true)
+                }}
+              >
+                移除已导入文件
+              </button>
+            </div>
+          )}
         <p className="demo-note">
           {book.sourceType === 'demo'
             ? '示例藏书 · 封面为书房设计，正文为演示片段'
             : book.availability === 'stored'
-              ? 'EPUB 已存本机 · 暂不支持解析正文'
+              ? 'EPUB 已保存，但当前尚未解析，不能阅读'
               : 'MAP7E 自制书封 · 私人文件仅在本机保存'}
         </p>
         {book.sourceType === 'private' && (
@@ -107,13 +136,58 @@ export default function BookDetail({
               </>
             ) : (
               <p>
-                待导入私人文件后生成目录；尚未录入{book.edition || '当前版本'}
+                待导入私人文件后生成目录；尚未录入
+                {book.edition || '当前版本'}
                 正式目录。
               </p>
             )}
           </section>
         )}
       </section>
+      {confirmRemove && (
+        <Sheet
+          title="移除已导入文件？"
+          onClose={() => {
+            if (!removing) setConfirmRemove(false)
+          }}
+        >
+          <p className="import-intro">
+            将移除这台设备中《{book.title}
+            》的私人文件、正文和阅读位置。书籍条目保留，你设备上的原始文件不受影响。
+          </p>
+          {removeError && (
+            <p role="alert" className="import-error">
+              {removeError}
+            </p>
+          )}
+          <button
+            className="primary-button"
+            disabled={removing}
+            onClick={async () => {
+              setRemoving(true)
+              try {
+                await onRemove()
+                setConfirmRemove(false)
+              } catch {
+                setRemoveError(
+                  '移除失败，原有文件和阅读位置保持不变，请重试。',
+                )
+              } finally {
+                setRemoving(false)
+              }
+            }}
+          >
+            {removing ? '正在移除…' : '确认移除私人文件'}
+          </button>
+          <button
+            className="text-button"
+            disabled={removing}
+            onClick={() => setConfirmRemove(false)}
+          >
+            保留文件
+          </button>
+        </Sheet>
+      )}
     </main>
   )
 }

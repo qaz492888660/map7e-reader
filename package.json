@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
-    "test:ui": "npm run build && node scripts/check-ui.cjs && node scripts/check-import.cjs"
+    "test:ui": "npm run build && node scripts/check-ui.cjs && node scripts/check-import.cjs && node scripts/check-pagination.cjs"
   },
   "dependencies": {
     "react": "^18.3.1",

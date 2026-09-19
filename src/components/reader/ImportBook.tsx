@@ -18,7 +18,10 @@ export default function ImportBook({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const serial = useRef(0)
-  async function preview(nextFile: File | null, nextEncoding: TextEncoding) {
+  async function preview(
+    nextFile: File | null,
+    nextEncoding: TextEncoding,
+  ) {
     const ticket = ++serial.current
     setFile(nextFile)
     setEncoding(nextEncoding)
@@ -57,7 +60,9 @@ export default function ImportBook({
         accept=".txt,.epub,text/plain,application/epub+zip"
         aria-label="选择私人书籍文件"
         disabled={busy}
-        onChange={(e) => void preview(e.target.files?.[0] || null, encoding)}
+        onChange={(e) =>
+          void preview(e.target.files?.[0] || null, encoding)
+        }
       />
       <button
         className="primary-button"
@@ -72,7 +77,9 @@ export default function ImportBook({
           aria-label="TXT 编码"
           value={encoding}
           disabled={busy}
-          onChange={(e) => void preview(file, e.target.value as TextEncoding)}
+          onChange={(e) =>
+            void preview(file, e.target.value as TextEncoding)
+          }
         >
           <option value="utf-8">UTF-8</option>
           <option value="gb18030">GB18030 / GBK</option>
@@ -80,7 +87,8 @@ export default function ImportBook({
         </select>
       </label>
       <p className="import-hint">
-        TXT 可阅读；EPUB 本轮只保存文件，不解析正文。单个文件最多 20 MB。
+        TXT 可阅读；EPUB 只保存文件，尚未解析，不能阅读。PDF
+        暂不支持，不提供 OCR。单个文件最多 20 MB。
       </p>
       {error && (
         <p className="import-error" role="alert">

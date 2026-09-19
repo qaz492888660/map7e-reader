@@ -2,7 +2,7 @@
 const assert = require('node:assert/strict')
 const { buildSync } = require('esbuild')
 const { Module } = require('node:module')
-const { IDBFactory } = require('fake-indexeddb')
+const { IDBFactory, IDBObjectStore } = require('fake-indexeddb')
 function load(entry) {
   const source = buildSync({
     entryPoints: [entry],
@@ -18,9 +18,12 @@ function load(entry) {
 const { splitText, prepareImport, MAX_FILE_BYTES } = load(
   'src/services/importBook.ts',
 )
-const { storePrivateBook, loadLibrary, storePrivatePosition } = load(
-  'src/services/privateBooks.ts',
-)
+const {
+  storePrivateBook,
+  loadLibrary,
+  storePrivatePosition,
+  removePrivateBook,
+} = load('src/services/privateBooks.ts')
 const book = {
   id: 'test-private',
   title: '导入测试',
@@ -54,7 +57,9 @@ async function check(name, run) {
       const chapters = splitText(text)
       assert.ok(chapters.length > 1)
       assert.equal(chapters.flatMap((c) => c.paragraphs).join(''), text)
-      assert.ok(chapters.every((c) => c.paragraphs.join('').length <= 15200))
+      assert.ok(
+        chapters.every((c) => c.paragraphs.join('').length <= 15200),
+      )
       assert.ok(
         chapters
           .flatMap((c) => c.paragraphs)
@@ -88,7 +93,10 @@ async function check(name, run) {
   await check('UTF-16LE imports correctly', async () => {
     const result = await prepareImport(
       book,
-      new File([Buffer.from('第一章 测试\n编码文字', 'utf16le')], 'utf16.txt'),
+      new File(
+        [Buffer.from('第一章 测试\n编码文字', 'utf16le')],
+        'utf16.txt',
+      ),
       'utf-16le',
     )
     assert.equal(result.content.chapters[0].paragraphs[0], '编码文字')
@@ -128,7 +136,10 @@ async function check(name, run) {
   await check('IndexedDB retains a real Blob and its text', async () => {
     const data = await loadLibrary()
     assert.ok(data.records[0].file instanceof Blob)
-    assert.equal(await data.records[0].file.text(), '第一章 旧文\n存储测试正文')
+    assert.equal(
+      await data.records[0].file.text(),
+      '第一章 旧文\n存储测试正文',
+    )
   })
   const replacement = await prepareImport(
     book,
@@ -139,21 +150,31 @@ async function check(name, run) {
     'New file revision invalidates old-tab progress writes',
     async () => {
       await storePrivatePosition(book.id, {
-        chapter: 0,
-        fraction: 0.8,
+        chapterId: old.content.chapters[0].id,
+        paragraphIndex: 0,
+        characterOffset: 3,
         updatedAt: 1,
         contentRevision: old.revision,
       })
       await storePrivateBook(replacement)
       await storePrivatePosition(book.id, {
-        chapter: 0,
-        fraction: 0.9,
+        chapterId: old.content.chapters[0].id,
+        paragraphIndex: 0,
+        characterOffset: 4,
         updatedAt: 2,
         contentRevision: old.revision,
       })
       assert.equal((await loadLibrary()).positions.length, 0)
     },
   )
+  const position = {
+    chapterId: replacement.content.chapters[0].id,
+    paragraphIndex: 0,
+    characterOffset: 3,
+    updatedAt: 3,
+    contentRevision: replacement.revision,
+  }
+  await storePrivatePosition(book.id, position)
   await check(
     'Failed replacement leaves the previously committed book intact',
     async () => {
@@ -166,6 +187,86 @@ async function check(name, run) {
       )
       const data = await loadLibrary()
       assert.equal(data.records[0].revision, replacement.revision)
+      assert.equal(
+        await data.records[0].file.text(),
+        await replacement.file.text(),
+      )
+      assert.deepEqual(data.records[0].content, replacement.content)
+      assert.deepEqual(data.positions, [{ bookId: book.id, ...position }])
+    },
+  )
+  // Fail the second request, after the first write/delete has been queued.
+  // This tests rollback, not merely failure to open IndexedDB.
+  async function withPositionDeleteFailure(run) {
+    const original = IDBObjectStore.prototype.delete
+    let injected = false
+    IDBObjectStore.prototype.delete = function (key) {
+      if (this.name === 'positions') {
+        injected = true
+        throw new Error('Injected second-request failure')
+      }
+      return original.call(this, key)
+    }
+    try {
+      await run()
+    } finally {
+      IDBObjectStore.prototype.delete = original
+    }
+    assert.ok(
+      injected,
+      'The failure must occur after the first request was queued',
+    )
+  }
+  for (const [name, operation] of [
+    [
+      'Replacement',
+      () => storePrivateBook({ ...old, revision: 'failed-replacement' }),
+    ],
+    ['Removal', () => removePrivateBook(book.id)],
+  ]) {
+    await check(
+      `${name} rolls back body, Blob and position if the second request fails`,
+      async () => {
+        await withPositionDeleteFailure(() => assert.rejects(operation()))
+        const data = await loadLibrary()
+        assert.equal(data.records[0].revision, replacement.revision)
+        assert.equal(
+          await data.records[0].file.text(),
+          await replacement.file.text(),
+        )
+        assert.deepEqual(data.records[0].content, replacement.content)
+        assert.deepEqual(data.positions, [{ bookId: book.id, ...position }])
+      },
+    )
+  }
+  await check(
+    'Removal deletes only the selected private Blob, body and position',
+    async () => {
+      await storePrivateBook({ ...old, bookId: 'another-book' })
+      await storePrivatePosition('another-book', {
+        ...position,
+        contentRevision: old.revision,
+      })
+      await removePrivateBook(book.id)
+      const data = await loadLibrary()
+      assert.deepEqual(
+        data.records.map((r) => r.bookId),
+        ['another-book'],
+      )
+      assert.deepEqual(
+        data.positions.map((p) => p.bookId),
+        ['another-book'],
+      )
+    },
+  )
+  await check(
+    'A stale reader cannot recreate a removed book checkpoint',
+    async () => {
+      await storePrivatePosition(book.id, position)
+      await removePrivateBook(book.id) // repeated removal is safe
+      assert.ok(
+        (await loadLibrary()).positions.every((p) => p.bookId !== book.id),
+      )
     },
   )
   console.log(`\n${count} import/storage boundary checks passed.`)

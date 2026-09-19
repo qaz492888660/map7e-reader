@@ -1,4 +1,8 @@
-import type { Book, ReaderSettings, ReadingPosition } from '../../types/book'
+import type {
+  Book,
+  ReaderSettings,
+  ReadingPosition,
+} from '../../types/book'
 import BookCover from './BookCover'
 import PageHeader from './PageHeader'
 import Icon from './Icon'
@@ -9,19 +13,25 @@ export function ReadingHistory({
   progress,
   onOpen,
   onBack,
+  onSettings,
 }: {
   books: Book[]
   positions: Record<string, ReadingPosition>
   progress: (book: Book) => number
   onOpen: (b: Book) => void
   onBack: () => void
+  onSettings: () => void
 }) {
   const visited = books
     .filter((b) => positions[b.id])
     .sort((a, b) => positions[b.id].updatedAt - positions[a.id].updatedAt)
   return (
     <main className="page personal-page">
-      <PageHeader title="阅读记录" onBack={onBack} />
+      <PageHeader
+        title="阅读记录"
+        onBack={onBack}
+        onSettings={onSettings}
+      />
       <div className="page-intro">
         <div className="eyebrow">WHERE YOU LEFT OFF</div>
         <h1 tabIndex={-1}>每一次，翻开。</h1>
@@ -38,8 +48,8 @@ export function ReadingHistory({
                 <strong>{book.title}</strong>
                 <small>{book.author}</small>
                 <small>
-                  {book.sourceType === 'demo' ? '演示正文' : '私人书籍'} · 读至{' '}
-                  {Math.round(progress(book) * 100)}%
+                  {book.sourceType === 'demo' ? '演示正文' : '私人书籍'} ·
+                  读至 {Math.round(progress(book) * 100)}%
                 </small>
               </span>
               <Icon name="arrow" />

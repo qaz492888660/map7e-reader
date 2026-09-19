@@ -1,4 +1,8 @@
-import type { PrivateBookRecord, ReadingPosition } from '../types/book'
+import type {
+  PrivateBookRecord,
+  ReadingPosition,
+  StoredReadingPosition,
+} from '../types/book'
 const DB = 'map7e-private-library'
 export function openLibrary(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -42,7 +46,7 @@ export async function loadLibrary() {
   const db = await openLibrary()
   return new Promise<{
     records: PrivateBookRecord[]
-    positions: (ReadingPosition & { bookId: string })[]
+    positions: (StoredReadingPosition & { bookId: string })[]
   }>((resolve, reject) => {
     const tx = db.transaction(['books', 'positions'], 'readonly')
     const records = tx.objectStore('books').getAll()
@@ -101,6 +105,31 @@ export async function storePrivatePosition(
     tx.onabort = tx.onerror = () => {
       db.close()
       reject(tx.error || new Error('阅读位置保存失败。'))
+    }
+  })
+}
+
+export async function removePrivateBook(bookId: string) {
+  const db = await openLibrary()
+  return new Promise<void>((resolve, reject) => {
+    // Catalog metadata is bundled separately; remove only this private file and checkpoint.
+    const tx = db.transaction(['books', 'positions'], 'readwrite')
+    tx.oncomplete = () => {
+      db.close()
+      resolve()
+    }
+    tx.onabort = tx.onerror = () => {
+      db.close()
+      reject(tx.error || new Error('移除失败，原有文件保持不变。'))
+    }
+    try {
+      tx.objectStore('books').delete(bookId)
+      tx.objectStore('positions').delete(bookId)
+    } catch (error) {
+      // Even a synchronous second request failure must roll back the first delete.
+      tx.abort()
+      db.close()
+      reject(error)
     }
   })
 }

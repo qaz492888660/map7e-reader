@@ -8,6 +8,7 @@ interface Props {
   onSelect: (id: string) => void
   onOpen: (book: Book) => void
   onBack: () => void
+  onSettings: () => void
   motion: boolean
   query: string
   category: string
@@ -20,6 +21,7 @@ export default function Library({
   onSelect,
   onOpen,
   onBack,
+  onSettings,
   motion,
   query,
   category,
@@ -36,7 +38,11 @@ export default function Library({
   )
   return (
     <main className="library page">
-      <PageHeader title="我的书库" onBack={onBack} />
+      <PageHeader
+        title="我的书库"
+        onBack={onBack}
+        onSettings={onSettings}
+      />
       <section className="page-intro">
         <div className="eyebrow">THE PRIVATE COLLECTION</div>
         <h1 tabIndex={-1}>把世界，收在这里。</h1>

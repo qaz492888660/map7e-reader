@@ -28,13 +28,25 @@ export interface BookContent {
   format: 'demo' | 'txt'
   chapters: Chapter[]
 }
-export interface ReadingPosition {
+export interface LegacyReadingPosition {
   chapter: number
   chapterId?: string
   fraction: number
   updatedAt: number
   contentRevision?: string
 }
+export interface ContentAnchor {
+  paragraphIndex: number
+  characterOffset: number
+}
+export interface ReadingPosition extends ContentAnchor {
+  chapterId: string
+  contentRevision: string
+  updatedAt: number
+  completed?: boolean
+}
+// Read old checkpoints once, then write only stable content anchors.
+export type StoredReadingPosition = ReadingPosition | LegacyReadingPosition
 export interface PrivateBookRecord {
   bookId: string
   metadata: Book
@@ -49,5 +61,7 @@ export interface ReaderSettings {
   fontSize: number
   fontFamily: 'serif' | 'sans'
   theme: 'paper' | 'white' | 'night'
+  lineHeight: number
+  pageMargin: number
   motion: boolean
 }

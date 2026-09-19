@@ -5,7 +5,10 @@ const { IDBFactory } = require('fake-indexeddb')
 const { readFileSync } = require('node:fs')
 const assert = require('node:assert/strict')
 const path = require('node:path')
-const html = readFileSync(path.join(__dirname, '../dist/index.html'), 'utf8')
+const html = readFileSync(
+  path.join(__dirname, '../dist/index.html'),
+  'utf8',
+)
 const entry = html.match(/<script[^>]+src="([^"]+)"/)[1]
 const bundle = readFileSync(path.join(__dirname, '../dist', entry), 'utf8')
 const pause = () => new Promise((resolve) => setTimeout(resolve, 100))
@@ -40,6 +43,17 @@ async function launch(
   w.File = File
   w.Blob = Blob
   w.TextDecoder = TextDecoder
+  Object.defineProperty(w, 'innerWidth', {
+    configurable: true,
+    writable: true,
+    value: 390,
+  })
+  Object.defineProperty(w, 'innerHeight', {
+    configurable: true,
+    writable: true,
+    value: 844,
+  })
+  require('./dom-layout-fixture.cjs')(w)
   w.scrollTo = () => {}
   w.matchMedia = () => ({ matches: false })
   w.ResizeObserver = class {
@@ -79,7 +93,8 @@ async function launch(
 function button(t, text) {
   return [...t.d.querySelectorAll('button')].find(
     (b) =>
-      b.textContent.trim() === text || b.getAttribute('aria-label') === text,
+      b.textContent.trim() === text ||
+      b.getAttribute('aria-label') === text,
   )
 }
 async function click(t, text) {
@@ -101,16 +116,73 @@ async function go(t, hash) {
   t.w.location.hash = hash
   await pause()
 }
+function anchorOf(t, id = 'general-psychology-6') {
+  const p = JSON.parse(t.w.localStorage.getItem(key)).positions[id]
+  return {
+    chapterId: p.chapterId,
+    paragraphIndex: p.paragraphIndex,
+    characterOffset: p.characterOffset,
+    contentRevision: p.contentRevision,
+  }
+}
+function assertAnchorVisible(t, anchor) {
+  const p = t.d.querySelector(`[data-paragraph="${anchor.paragraphIndex}"]`)
+  const range = t.d.createRange()
+  range.setStart(p.firstChild, anchor.characterOffset)
+  range.setEnd(
+    p.firstChild,
+    Math.min(anchor.characterOffset + 1, p.textContent.length),
+  )
+  const rect = range.getClientRects()[0]
+  const box = t.d.querySelector('.page-window').getBoundingClientRect()
+  assert.ok(
+    rect.left >= box.left && rect.left < box.right,
+    'The saved character must be inside the displayed synthetic column',
+  )
+}
+async function tap(t, ratio) {
+  t.d
+    .querySelector('.reader-stage')
+    .dispatchEvent(
+      new t.w.MouseEvent('click', {
+        bubbles: true,
+        clientX: t.w.innerWidth * ratio,
+        clientY: 220,
+        detail: 1,
+      }),
+    )
+  await pause()
+}
+async function swipe(t, dx, dy = 0, cancel = false) {
+  const stage = t.d.querySelector('.reader-stage')
+  for (const [type, x, y] of [
+    ['pointerdown', 190, 230],
+    [cancel ? 'pointercancel' : 'pointerup', 190 + dx, 230 + dy],
+  ]) {
+    const e = new t.w.Event(type, { bubbles: true })
+    Object.assign(e, {
+      clientX: x,
+      clientY: y,
+      pointerId: 1,
+      isPrimary: true,
+      button: 0,
+      pointerType: 'touch',
+    })
+    stage.dispatchEvent(e)
+  }
+  await pause()
+}
 ;(async () => {
   let t = await launch()
   check(
-    'Home renders eight books and four bubble entries',
-    t.d.querySelectorAll('.book-slide').length === 8 &&
-      t.d.querySelectorAll('.bubble').length === 4,
+    'Home has only four bubble entries and no carousel',
+    t.d.querySelectorAll('.bubble').length === 4 &&
+      !t.d.querySelector('.book-carousel'),
   )
+  await click(t, '我的书库')
   check(
-    'Home selects the expected central book',
-    t.d.querySelector('.is-current .cover-title').textContent === '普通心理学',
+    'Home opens an independent Library with no bubbles',
+    !!t.d.querySelector('.library') && !t.d.querySelector('.bubble-nav'),
   )
   await click(t, '查看《普通心理学》')
   check(
@@ -131,8 +203,10 @@ async function go(t, hash) {
   check(
     'Resume maps the displayed 45% to demo chapter 2',
     t.w.location.hash === '#/reader/b03' &&
-      t.d.querySelector('.reader-content h1').textContent === '沿着风的方向',
+      t.d.querySelector('.reader-content h1').textContent ===
+        '沿着风的方向',
   )
+  if (!button(t, '目录')) await click(t, '显示阅读工具')
   await click(t, '目录')
   check(
     'Contents opens as a labelled modal',
@@ -151,8 +225,10 @@ async function go(t, hash) {
   await click(t, '黑体 / 无衬线')
   check(
     'Font size and font family change',
-    t.d.querySelector('.reader').style.getPropertyValue('--reading-size') ===
-      '23px' && !!t.d.querySelector('.font-sans'),
+    t.d
+      .querySelector('.reader')
+      .style.getPropertyValue('--reading-size') === '23px' &&
+      !!t.d.querySelector('.font-sans'),
   )
   await click(t, '关闭面板')
   await click(t, '主题')
@@ -163,19 +239,16 @@ async function go(t, hash) {
     !!t.d.querySelector('.reader.theme-night') &&
       JSON.parse(t.w.localStorage.getItem(key)).settings.theme === 'night',
   )
-  const scroller = t.d.querySelector('.reader-scroll')
-  Object.defineProperties(scroller, {
-    scrollHeight: { value: 2000 },
-    clientHeight: { value: 500 },
-  })
-  scroller.scrollTop = 750
-  scroller.dispatchEvent(new t.w.Event('scroll'))
-  await pause()
+  await click(t, '下一页')
   t.w.dispatchEvent(new t.w.Event('pagehide'))
   await pause()
+  const stable = JSON.parse(t.w.localStorage.getItem(key)).positions.b03
   check(
-    'Pagehide synchronously saves the last scroll position',
-    JSON.parse(t.w.localStorage.getItem(key)).positions.b03.fraction === 0.5,
+    'Pagehide saves a content anchor rather than scroll fraction or page number',
+    Number.isInteger(stable.paragraphIndex) &&
+      Number.isInteger(stable.characterOffset) &&
+      !('fraction' in stable) &&
+      !('page' in stable),
   )
   const saved = t.w.localStorage.getItem(key)
   await click(t, '返回')
@@ -219,7 +292,10 @@ async function go(t, hash) {
     'Motion switch stops ambient animation',
     !!t.d.querySelector('.motion-paused'),
   )
-  check('Main interaction flow has no runtime errors', t.errors.length === 0)
+  check(
+    'Main interaction flow has no runtime errors',
+    t.errors.length === 0,
+  )
   t.dom.window.close()
   t = await launch('#/reader/b03', saved)
   check(
@@ -227,10 +303,12 @@ async function go(t, hash) {
     t.d.querySelector('.reader-content h1').textContent ===
       '把夜晚留给一页书' &&
       !!t.d.querySelector('.theme-night') &&
-      t.d.querySelector('.reader').style.getPropertyValue('--reading-size') ===
-        '23px',
+      t.d
+        .querySelector('.reader')
+        .style.getPropertyValue('--reading-size') === '23px',
   )
-  await click(t, '读完了，合上书')
+  await click(t, '显示阅读工具')
+  await click(t, '返回')
   check(
     'Direct reader link has a safe back fallback',
     t.w.location.hash === '#/home',
@@ -244,7 +322,10 @@ async function go(t, hash) {
       !t.errors.length,
   )
   await click(t, '回到书库')
-  check('Missing-book recovery opens Library', !!t.d.querySelector('.library'))
+  check(
+    'Missing-book recovery opens Library',
+    !!t.d.querySelector('.library'),
+  )
   t.dom.window.close()
   t = await launch('#/reader/b03', undefined, true)
   check(
@@ -260,7 +341,12 @@ async function go(t, hash) {
   t.dom.window.close()
 
   const database = new IDBFactory()
-  t = await launch('#/reader/general-psychology-6', undefined, false, database)
+  t = await launch(
+    '#/reader/general-psychology-6',
+    undefined,
+    false,
+    database,
+  )
   check(
     'Missing real book never displays demo prose',
     t.d.body.textContent.includes('正文文件尚未导入') &&
@@ -305,8 +391,23 @@ async function go(t, hash) {
     t.d
       .querySelector('.import-preview')
       .textContent.includes('这不是教材原文') &&
-      t.d.querySelector('.import-preview').textContent.includes('2 个阅读分段'),
+      t.d
+        .querySelector('.import-preview')
+        .textContent.includes('2 个阅读分段'),
   )
+  await click(t, '关闭面板')
+  check(
+    'Cancelling a preview leaves the book missing',
+    !t.d.querySelector('article') &&
+      t.d.body.textContent.includes('正文文件尚未导入'),
+  )
+  await go(t, '#/book/general-psychology-6')
+  check(
+    'Preview cancellation creates no saved file',
+    !!button(t, '导入书籍开始学习') && !button(t, '移除已导入文件'),
+  )
+  await click(t, '导入书籍开始学习')
+  await choose(t, new File([fixture], 'map7e-test-only.txt'))
   await click(t, '确认导入并开始阅读')
   check(
     'TXT opens as private content and renders markup as text',
@@ -316,6 +417,7 @@ async function go(t, hash) {
       !t.w.injected &&
       !t.d.body.textContent.includes('演示正文 · 非原著内容'),
   )
+  if (!button(t, '目录')) await click(t, '显示阅读工具')
   await click(t, '目录')
   const entries = t.d.querySelectorAll('.contents-list button')
   check(
@@ -325,22 +427,141 @@ async function go(t, hash) {
   )
   entries[1].click()
   await pause()
-  const privateScroll = t.d.querySelector('.reader-scroll')
-  Object.defineProperties(privateScroll, {
-    scrollHeight: { value: 2000 },
-    clientHeight: { value: 500 },
-  })
-  privateScroll.scrollTop = 600
-  privateScroll.dispatchEvent(new t.w.Event('scroll'))
-  await pause()
+  await click(t, '下一页')
+  await click(t, '下一页')
   t.w.dispatchEvent(new t.w.Event('pagehide'))
   await pause()
+  const privatePosition = JSON.parse(t.w.localStorage.getItem(key))
+    .positions['general-psychology-6']
+  check(
+    'Pagination advances the stable paragraph or character offset',
+    privatePosition.paragraphIndex > 0 ||
+      privatePosition.characterOffset > 0,
+  )
   const checkpoint = t.w.localStorage.getItem(key)
   check(
     'Large body never enters localStorage',
     !checkpoint.includes('这不是教材原文') &&
       !checkpoint.includes('用于确认阅读进度'),
   )
+  const beforeTap = anchorOf(t)
+  await tap(t, 0.1)
+  check(
+    'Left 25% tap moves to the previous measured page',
+    JSON.stringify(anchorOf(t)) !== JSON.stringify(beforeTap),
+  )
+  await tap(t, 0.9)
+  check(
+    'Right 25% tap returns to the next measured page',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeTap),
+  )
+  await tap(t, 0.5)
+  check(
+    'Central tap hides controls but keeps progress visible',
+    !t.d.querySelector('.reader-top-controls') &&
+      !!t.d.querySelector('.reader-persistent-progress progress'),
+  )
+  await tap(t, 0.5)
+  check(
+    'Central tap reveals controls and current page count',
+    !!t.d.querySelector('.reader-top-controls') &&
+      t.d.querySelector('.reader-page-status').textContent.includes('页'),
+  )
+  const beforeSelection = anchorOf(t)
+  const selectionRange = t.d.createRange()
+  selectionRange.selectNodeContents(t.d.querySelector('[data-paragraph]'))
+  t.w.getSelection().removeAllRanges()
+  t.w.getSelection().addRange(selectionRange)
+  assert.ok(
+    t.w.getSelection().toString(),
+    'Selection fixture must actually select text',
+  )
+  await tap(t, 0.1)
+  check(
+    'Text selection prevents accidental tap navigation',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeSelection),
+  )
+  t.w.getSelection().removeAllRanges()
+  await click(t, '目录')
+  t.d.querySelectorAll('.contents-list button')[1].click()
+  await pause()
+  const beforeSwipe = anchorOf(t)
+  check(
+    'Selecting the current chapter resets its runtime page as well as anchor',
+    t.d.querySelector('.reader-columns').style.transform ===
+      'translateX(0px)',
+  )
+  await swipe(t, -100)
+  check(
+    'Synthetic left swipe advances a page',
+    JSON.stringify(anchorOf(t)) !== JSON.stringify(beforeSwipe),
+  )
+  await swipe(t, 100)
+  check(
+    'Synthetic right swipe restores the previous page',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeSwipe),
+  )
+  await swipe(t, -70, 180)
+  check(
+    'Vertical gesture does not turn a page',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeSwipe),
+  )
+  await swipe(t, -100, 0, true)
+  check(
+    'Cancelled pointer gesture does not turn a page',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeSwipe),
+  )
+  await click(t, '下一页')
+  const beforeReflow = anchorOf(t)
+  await click(t, '字体')
+  for (const setting of ['25', '黑体 / 无衬线', '行距 2.05', '边距 34']) {
+    await click(t, setting)
+    t.w.dispatchEvent(new t.w.Event('pagehide'))
+    assertAnchorVisible(t, beforeReflow)
+    check(
+      `Reflow retains semantic anchor after ${setting}`,
+      JSON.stringify(anchorOf(t)) === JSON.stringify(beforeReflow),
+    )
+  }
+  await click(t, '关闭面板')
+  for (const width of [360, 375, 390, 430]) {
+    t.w.innerWidth = width
+    t.w.dispatchEvent(new t.w.Event('resize'))
+    await pause()
+    t.w.dispatchEvent(new t.w.Event('pagehide'))
+    assertAnchorVisible(t, beforeReflow)
+    check(
+      `Synthetic ${width}px resize retains anchor and paginated DOM`,
+      JSON.stringify(anchorOf(t)) === JSON.stringify(beforeReflow) &&
+        !!t.d.querySelector('.reader-columns') &&
+        !t.d.querySelector('.reader-scroll'),
+    )
+  }
+  t.w.innerWidth = 844
+  t.w.innerHeight = 390
+  t.w.dispatchEvent(new t.w.Event('resize'))
+  await pause()
+  assertAnchorVisible(t, beforeReflow)
+  check(
+    'Synthetic landscape resize retains the content anchor',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeReflow),
+  )
+  // Return to original dimensions and position before checking full re-open below.
+  t.w.innerWidth = 390
+  t.w.innerHeight = 844
+  t.w.dispatchEvent(new t.w.Event('resize'))
+  await pause()
+  await click(t, '目录')
+  t.d.querySelectorAll('.contents-list button')[1].click()
+  await pause()
+  await click(t, '字体')
+  await click(t, '19')
+  await click(t, '宋体 / 衬线')
+  await click(t, '行距 1.85')
+  await click(t, '边距 26')
+  await click(t, '关闭面板')
+  await click(t, '下一页')
+  await click(t, '下一页')
   await go(t, '#/home')
   await click(t, '继续阅读')
   check(
@@ -350,16 +571,28 @@ async function go(t, hash) {
       !t.d.querySelector('.detail'),
   )
   check(
-    'Continue Reading restores scroll fraction',
-    Number(t.d.querySelector('progress').value) > 0.69,
+    'Continue Reading restores the saved content anchor',
+    JSON.parse(t.w.localStorage.getItem(key)).positions[
+      'general-psychology-6'
+    ].paragraphIndex === privatePosition.paragraphIndex &&
+      JSON.parse(t.w.localStorage.getItem(key)).positions[
+        'general-psychology-6'
+      ].characterOffset === privatePosition.characterOffset,
   )
   t.dom.window.close()
   // No localStorage checkpoint: prove metadata, chapters and position persist in IDB.
-  t = await launch('#/reader/general-psychology-6', undefined, false, database)
+  t = await launch(
+    '#/reader/general-psychology-6',
+    undefined,
+    false,
+    database,
+  )
   check(
     'Refresh recovers private text and position from IndexedDB alone',
     t.d.querySelector('h1').textContent === '第二章 位置恢复测试' &&
-      Number(t.d.querySelector('progress').value) > 0.69,
+      JSON.parse(t.w.localStorage.getItem(key)).positions[
+        'general-psychology-6'
+      ].paragraphIndex === privatePosition.paragraphIndex,
   )
   await go(t, '#/book/general-psychology-6')
   check(
@@ -369,6 +602,37 @@ async function go(t, hash) {
         .querySelector('.detail-contents')
         .textContent.includes('第二章 位置恢复测试'),
   )
+  const beforeFailedReplace = anchorOf(t)
+  await click(t, '替换私人书籍文件')
+  await choose(t, new File(['invalid'], 'wrong.pdf'))
+  await click(t, '关闭面板')
+  check(
+    'Invalid replacement leaves the old position unchanged',
+    JSON.stringify(anchorOf(t)) === JSON.stringify(beforeFailedReplace),
+  )
+  await click(t, '替换私人书籍文件')
+  await choose(
+    t,
+    new File(['第一章 保存失败测试\n仅测试保存事务。'], 'fail-replace.txt'),
+  )
+  const saveOpen = t.w.indexedDB.open.bind(t.w.indexedDB)
+  t.w.indexedDB.open = () => {
+    throw Error('QuotaExceededError')
+  }
+  await click(t, '确认导入并开始阅读')
+  check(
+    'Failed replacement reports failure and preserves old checkpoint',
+    t.d.querySelector('[role=alert]').textContent.includes('保存失败') &&
+      JSON.stringify(anchorOf(t)) === JSON.stringify(beforeFailedReplace),
+  )
+  t.w.indexedDB.open = saveOpen
+  await click(t, '关闭面板')
+  await click(t, '继续阅读')
+  check(
+    'Old text remains readable after failed replacement',
+    t.d.querySelector('h1').textContent === '第二章 位置恢复测试',
+  )
+  await go(t, '#/book/general-psychology-6')
   await click(t, '替换私人书籍文件')
   await choose(
     t,
@@ -408,9 +672,63 @@ async function go(t, hash) {
     t.d.body.textContent.includes('EPUB 文件已保存在本机') &&
       !t.d.querySelector('article'),
   )
+  await go(t, '#/book/general-psychology-6')
+  await click(t, '移除已导入文件')
+  check(
+    'Removal requires an explicit second confirmation',
+    !!button(t, '确认移除私人文件'),
+  )
+  await click(t, '保留文件')
+  check(
+    'Cancelling removal keeps the saved file',
+    !!button(t, '移除已导入文件'),
+  )
+  await click(t, '移除已导入文件')
+  const deleteOpen = t.w.indexedDB.open.bind(t.w.indexedDB)
+  t.w.indexedDB.open = () => {
+    throw Error('Storage unavailable')
+  }
+  await click(t, '确认移除私人文件')
+  check(
+    'Failed removal reports failure without changing the book',
+    t.d.querySelector('[role=alert]').textContent.includes('移除失败') &&
+      !!button(t, '移除已导入文件'),
+  )
+  t.w.indexedDB.open = deleteOpen
+  await click(t, '确认移除私人文件')
+  check(
+    'Removal retains metadata and restores the missing-file CTA',
+    t.d.querySelector('h1').textContent === '普通心理学' &&
+      !!button(t, '导入书籍开始学习') &&
+      !button(t, '移除已导入文件'),
+  )
+  check(
+    'Removal clears the localStorage position checkpoint',
+    !JSON.parse(t.w.localStorage.getItem(key)).positions[
+      'general-psychology-6'
+    ],
+  )
+  t.dom.window.close()
+  t = await launch(
+    '#/reader/general-psychology-6',
+    undefined,
+    false,
+    database,
+  )
+  check(
+    'Fresh launch confirms removed file and body stay missing',
+    !t.d.querySelector('article') &&
+      t.d.body.textContent.includes('正文文件尚未导入') &&
+      !t.d.body.textContent.includes('EPUB 文件已保存在本机'),
+  )
   check('Private import flow has no runtime errors', !t.errors.length)
   t.dom.window.close()
-  t = await launch('#/reader/general-psychology-6', undefined, false, undefined)
+  t = await launch(
+    '#/reader/general-psychology-6',
+    undefined,
+    false,
+    undefined,
+  )
   // Simulate quota denial after successful opening/preview, without a real upload.
   await click(t, '导入私人书籍文件')
   await choose(
@@ -431,7 +749,7 @@ async function go(t, hash) {
   t.w.indexedDB.open = originalOpen
   t.dom.window.close()
   console.log(
-    `\n${checks} checks passed. DOM-only: no claims about real touch, layout, or FPS.`,
+    `\n${checks} checks passed. JSDOM + synthetic geometry only; no real browser layout, touch, safe-area or FPS verification.`,
   )
 })().catch((error) => {
   console.error(error)
