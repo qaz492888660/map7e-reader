@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { books as catalog, bundledContent } from './data/catalog'
 import { usePage } from './hooks/usePage'
 import { useReaderState } from './hooks/useReaderState'
@@ -23,6 +23,21 @@ export default function App() {
   const saved = useReaderState()
   const privateLibrary = usePrivateLibrary()
   const { settings, setSettings } = saved
+  useLayoutEffect(() => {
+    const readerSurfaces = {
+      paper: '#f5f1e8',
+      white: '#fcfcfa',
+      night: '#202b30',
+    } as const
+    const inReader = page.name === 'reader'
+    const color = inReader ? readerSurfaces[settings.theme] : '#dfe7e6'
+    document
+      .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+      ?.setAttribute('content', color)
+    if (inReader)
+      document.documentElement.dataset.readerSurface = settings.theme
+    else delete document.documentElement.dataset.readerSurface
+  }, [page.name, settings.theme])
   const books = catalog.map((book) =>
     book.sourceType === 'private' && privateLibrary.records[book.id]
       ? {

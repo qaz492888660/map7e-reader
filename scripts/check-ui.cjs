@@ -30,7 +30,7 @@ async function launch(
   console.on('jsdomError', (error) => errors.push(error.message))
   console.on('error', (...args) => errors.push(args.join(' ')))
   const dom = new JSDOM(
-    '<!doctype html><html><body><div id="root"></div></body></html>',
+    '<!doctype html><html><head><meta name="theme-color" content="#dfe7e6"></head><body><div id="root"></div></body></html>',
     {
       url: `https://reader.example/${hash}`,
       runScripts: 'outside-only',
@@ -177,7 +177,9 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Home has only four bubble entries and no carousel',
     t.d.querySelectorAll('.bubble').length === 4 &&
-      !t.d.querySelector('.book-carousel'),
+      !t.d.querySelector('.book-carousel') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6' &&
+      !t.d.documentElement.dataset.readerSurface,
   )
   await click(t, '我的书库')
   check(
@@ -237,7 +239,10 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Night theme changes and persists',
     !!t.d.querySelector('.reader.theme-night') &&
-      JSON.parse(t.w.localStorage.getItem(key)).settings.theme === 'night',
+      JSON.parse(t.w.localStorage.getItem(key)).settings.theme ===
+        'night' &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#202b30' &&
+      t.d.documentElement.dataset.readerSurface === 'night',
   )
   await click(t, '下一页')
   t.w.dispatchEvent(new t.w.Event('pagehide'))
@@ -252,7 +257,12 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   )
   const saved = t.w.localStorage.getItem(key)
   await click(t, '返回')
-  check('Reader back returns to detail', !!t.d.querySelector('.detail'))
+  check(
+    'Reader back returns to detail and restores the sky browser color',
+    !!t.d.querySelector('.detail') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6' &&
+      !t.d.documentElement.dataset.readerSurface,
+  )
   await go(t, '#/history')
   check(
     'History contains only actually visited books',

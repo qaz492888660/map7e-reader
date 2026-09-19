@@ -12,6 +12,10 @@
     'Songti SC', 'Noto Serif CJK SC', 'Noto Serif SC',
     'Source Han Serif SC', SimSun, serif;
   --paper: #f5f1e8;
+  --sky-background:
+    radial-gradient(ellipse at 88% 12%, #fff4dc90, transparent 43%),
+    linear-gradient(180deg, #cedfe7 0%, #e6eeef 48%, #edece2 100%);
+  --app-background: var(--sky-background);
 }
 *,
 *::before,
@@ -63,9 +67,24 @@ body,
 #root {
   width: 100%;
   min-height: 100%;
+  background: var(--app-background);
 }
 html {
   scroll-behavior: smooth;
+}
+body,
+#root {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+html[data-reader-surface='paper'] {
+  --app-background: #f5f1e8;
+}
+html[data-reader-surface='white'] {
+  --app-background: #fcfcfa;
+}
+html[data-reader-surface='night'] {
+  --app-background: #202b30;
 }
 input {
   color: inherit;
@@ -106,6 +125,7 @@ h2 {
   isolation: isolate;
   min-height: 100vh;
   min-height: 100dvh;
+  background: var(--sky-background);
 }
 .sky {
   position: fixed;
@@ -113,9 +133,7 @@ h2 {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background:
-    radial-gradient(ellipse at 88% 12%, #fff4dc90, transparent 43%),
-    linear-gradient(180deg, #cedfe7 0%, #e6eeef 48%, #edece2 100%);
+  background: var(--sky-background);
 }
 .cloud {
   position: absolute;
