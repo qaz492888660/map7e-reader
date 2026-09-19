@@ -71,5 +71,6 @@ export interface ReaderSettings {
   lineHeight: number
   pageMargin: number
   script: 'original' | 'simplified' | 'traditional'
+  ambience: 'sky' | 'ocean'
   motion: boolean
 }

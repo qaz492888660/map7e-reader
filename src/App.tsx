@@ -17,6 +17,7 @@ import PageHeader from './components/reader/PageHeader'
 import MissingBook from './components/reader/MissingBook'
 import ImportBook from './components/reader/ImportBook'
 import { ReadingHistory, Settings } from './components/reader/PersonalPages'
+import OceanBackground from './components/reader/OceanBackground'
 
 export default function App() {
   const { page, navigate, back } = usePage()
@@ -30,14 +31,18 @@ export default function App() {
       night: '#202b30',
     } as const
     const inReader = page.name === 'reader'
-    const color = inReader ? readerSurfaces[settings.theme] : '#dfe7e6'
+    const color = inReader
+      ? readerSurfaces[settings.theme]
+      : page.name === 'home' && settings.ambience === 'ocean'
+        ? '#143f55'
+        : '#dfe7e6'
     document
       .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute('content', color)
     if (inReader)
       document.documentElement.dataset.readerSurface = settings.theme
     else delete document.documentElement.dataset.readerSurface
-  }, [page.name, settings.theme])
+  }, [page.name, settings.theme, settings.ambience])
   const books = catalog.map((book) =>
     book.sourceType === 'private' && privateLibrary.records[book.id]
       ? {
@@ -155,16 +160,24 @@ export default function App() {
         )
       ) : (
         <div
-          className={`reading-space ${settings.motion ? '' : 'motion-paused'}`}
+          className={`reading-space ${settings.motion ? '' : 'motion-paused'} ${
+            page.name === 'home' && settings.ambience === 'ocean'
+              ? 'ambience-ocean'
+              : ''
+          }`}
         >
-          <div className="sky" aria-hidden="true">
-            <div className="sky-light" />
-            <div className="cloud cloud-one" />
-            <div className="cloud cloud-two" />
-            <div className="sky-distance" />
-            <div className="sky-horizon" />
-            <span className="distant-leaf">✧</span>
-          </div>
+          {page.name === 'home' && settings.ambience === 'ocean' ? (
+            <OceanBackground motion={settings.motion} variant="space" />
+          ) : (
+            <div className="sky" aria-hidden="true">
+              <div className="sky-light" />
+              <div className="cloud cloud-one" />
+              <div className="cloud cloud-two" />
+              <div className="sky-distance" />
+              <div className="sky-horizon" />
+              <span className="distant-leaf">✧</span>
+            </div>
+          )}
           <div className="space-content">
             {page.name === 'home' && (
               <Home
@@ -175,6 +188,7 @@ export default function App() {
                 onResume={() =>
                   positions[recent.id] ? read(recent) : open(recent)
                 }
+                ambience={settings.ambience}
               />
             )}
             {page.name === 'library' && (

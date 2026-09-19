@@ -6,7 +6,7 @@ import type {
 import BookCover from './BookCover'
 import PageHeader from './PageHeader'
 import Icon from './Icon'
-import { ScriptOptions, ThemeOptions } from './Reader'
+import { AmbienceOptions, ScriptOptions, ThemeOptions } from './Reader'
 export function ReadingHistory({
   books,
   positions,
@@ -92,6 +92,8 @@ export function Settings({
       <section className="settings-section">
         <h2>阅读时的光</h2>
         <ThemeOptions settings={settings} onSettings={onSettings} />
+        <h2>书房氛围</h2>
+        <AmbienceOptions settings={settings} onSettings={onSettings} />
         <h2>正文文字</h2>
         <ScriptOptions settings={settings} onSettings={onSettings} />
         <div className="motion-setting">

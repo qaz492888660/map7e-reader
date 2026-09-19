@@ -1,4 +1,4 @@
-import type { Book } from '../../types/book'
+import type { Book, ReaderSettings } from '../../types/book'
 import Icon from './Icon'
 interface Props {
   onResume: () => void
@@ -6,6 +6,7 @@ interface Props {
   onNavigate: (page: 'library' | 'history' | 'settings') => void
   resume: Book
   progress: number
+  ambience: ReaderSettings['ambience']
 }
 export default function Home({
   onNavigate,
@@ -13,6 +14,7 @@ export default function Home({
   hasPosition,
   resume,
   progress,
+  ambience,
 }: Props) {
   return (
     <main className="home page">
@@ -27,7 +29,7 @@ export default function Home({
       </header>
       <section className="greeting">
         <div className="eyebrow">
-          <span /> A ROOM ABOVE THE CLOUDS
+          <span /> {ambience === 'ocean' ? 'A ROOM BENEATH THE WAVES' : 'A ROOM ABOVE THE CLOUDS'}
         </div>
         <h1 tabIndex={-1}>
           你好，枫<span>。</span>
