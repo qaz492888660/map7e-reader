@@ -48,7 +48,11 @@ export function ReadingHistory({
                 <strong>{book.title}</strong>
                 <small>{book.author}</small>
                 <small>
-                  {book.sourceType === 'demo' ? '演示正文' : '私人书籍'} ·
+                  {book.sourceType === 'demo'
+                    ? '演示正文'
+                    : book.sourceType === 'bundled'
+                      ? '公版全文'
+                      : '私人书籍'} ·
                   读至 {Math.round(progress(book) * 100)}%
                 </small>
               </span>

@@ -215,7 +215,9 @@ export default function Reader({
             <div className="eyebrow">
               {content.format === 'demo'
                 ? '演示正文 · 非原著内容'
-                : '私人导入 · ' + (book.edition || book.title)}
+                : content.format === 'public-domain'
+                  ? '公版原文 · ' + (book.edition || book.title)
+                  : '私人导入 · ' + (book.edition || book.title)}
             </div>
             <h1>{chapter.title}</h1>
             {chapter.paragraphs.map((text, i) => (

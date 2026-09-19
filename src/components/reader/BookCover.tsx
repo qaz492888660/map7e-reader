@@ -46,7 +46,11 @@ export default function BookCover({ book }: { book: Book }) {
             />
           </svg>
           <span className="cover-imprint">
-            {book.learningStage ? 'MAP7E · 第一册' : '藏 一 个 世 界'}
+            {book.sourceType === 'bundled'
+              ? 'MAP7E · 公版藏书'
+              : book.learningStage
+                ? 'MAP7E · 第一册'
+                : '藏 一 个 世 界'}
           </span>
         </>
       )}

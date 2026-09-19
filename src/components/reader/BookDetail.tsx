@@ -115,10 +115,29 @@ export default function BookDetail({
         <p className="demo-note">
           {book.sourceType === 'demo'
             ? '示例藏书 · 封面为书房设计，正文为演示片段'
-            : book.availability === 'stored'
-              ? 'EPUB 已保存，但当前尚未解析，不能阅读'
-              : 'MAP7E 自制书封 · 私人文件仅在本机保存'}
+            : book.sourceType === 'bundled'
+              ? '公版 · 可直接阅读 · MAP7E 自制书封'
+              : book.availability === 'stored'
+                ? 'EPUB 已保存，但当前尚未解析，不能阅读'
+                : 'MAP7E 自制书封 · 私人文件仅在本机保存'}
         </p>
+        {book.source && (
+          <section className="detail-contents" aria-label="书籍来源">
+            <h2>版本与来源</h2>
+            <p>
+              来源：
+              <a href={book.source.url} target="_blank" rel="noopener noreferrer">
+                {book.source.name}
+              </a>
+            </p>
+            <p>版本：{book.source.edition}</p>
+            <p>版权状态：{book.source.copyright}</p>
+            {book.source.translator && (
+              <p>译者：{book.source.translator}</p>
+            )}
+            <p>作者：{book.author}</p>
+          </section>
+        )}
         {book.sourceType === 'private' && (
           <section className="detail-contents">
             <h2>书中的路</h2>

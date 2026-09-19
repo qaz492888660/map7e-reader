@@ -79,7 +79,7 @@ export default function Library({
       <div className="collection-note">
         <Icon name="leaf" />
         <p>书页有尽头，想象没有。</p>
-        <span>{filtered.length} 本书 · 私人书籍与演示藏书</span>
+        <span>{filtered.length} 本书 · 私人书籍、公版全文与演示藏书</span>
       </div>
     </main>
   )

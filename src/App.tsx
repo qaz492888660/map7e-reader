@@ -49,9 +49,9 @@ export default function App() {
       : book,
   )
   const contentFor = (book: Book) =>
-    book.sourceType === 'demo'
-      ? bundledContent[book.id]
-      : privateLibrary.records[book.id]?.content
+    book.sourceType === 'private'
+      ? privateLibrary.records[book.id]?.content
+      : bundledContent[book.id]
   const positions: Record<string, ReadingPosition> = {}
   for (const book of books) {
     const content = contentFor(book)

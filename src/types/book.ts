@@ -11,7 +11,14 @@ export interface Book {
   description: string
   cover: { color: string; dark: string; motif: number; imageUrl?: string }
   readingProgress: number
-  sourceType: 'demo' | 'private'
+  sourceType: 'demo' | 'private' | 'bundled'
+  source?: {
+    name: string
+    url: string
+    edition: string
+    copyright: string
+    translator?: string
+  }
   availability: 'missing' | 'ready' | 'stored'
   chapters: ChapterSummary[]
   learningStage?: string
@@ -25,7 +32,7 @@ export interface Chapter extends ChapterSummary {
 export interface BookContent {
   bookId: string
   revision: string
-  format: 'demo' | 'txt'
+  format: 'demo' | 'txt' | 'public-domain'
   chapters: Chapter[]
 }
 export interface LegacyReadingPosition {

@@ -2,6 +2,8 @@ import { library } from './mockLibrary'
 import type { Book } from '../types/book'
 import { demoContent } from './books/demo'
 import { psychologyBook } from './books/psychology-general'
+import { crowdBook, crowdContent } from './books/crowd-psychology-1920'
+import { mechanicsBook, mechanicsContent } from './books/psychology-and-mechanics'
 
 const demoBooks: Book[] = library.flatMap((shelf, shelfIndex) =>
   shelf.books.map((book, index) => ({
@@ -24,9 +26,11 @@ const demoBooks: Book[] = library.flatMap((shelf, shelfIndex) =>
     })),
   })),
 )
-export const books: Book[] = [psychologyBook, ...demoBooks]
+export const books: Book[] = [psychologyBook, crowdBook, mechanicsBook, ...demoBooks]
 // Content resolution is explicitly keyed by book ID. Missing private books never
 // fall back to a different book's demonstration text.
-export const bundledContent = Object.fromEntries(
-  demoBooks.map((book) => [book.id, demoContent(book.id)]),
-)
+export const bundledContent = {
+  [crowdBook.id]: crowdContent,
+  [mechanicsBook.id]: mechanicsContent,
+  ...Object.fromEntries(demoBooks.map((book) => [book.id, demoContent(book.id)])),
+}

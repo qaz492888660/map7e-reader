@@ -125,7 +125,7 @@ function anchorOf(t, id = 'general-psychology-6') {
     contentRevision: p.contentRevision,
   }
 }
-function assertAnchorVisible(t, anchor) {
+function anchorVisible(t, anchor) {
   const p = t.d.querySelector(`[data-paragraph="${anchor.paragraphIndex}"]`)
   const range = t.d.createRange()
   range.setStart(p.firstChild, anchor.characterOffset)
@@ -135,10 +135,18 @@ function assertAnchorVisible(t, anchor) {
   )
   const rect = range.getClientRects()[0]
   const box = t.d.querySelector('.page-window').getBoundingClientRect()
+  return rect.left >= box.left && rect.left < box.right
+}
+function assertAnchorVisible(t, anchor) {
   assert.ok(
-    rect.left >= box.left && rect.left < box.right,
+    anchorVisible(t, anchor),
     'The saved character must be inside the displayed synthetic column',
   )
+}
+async function waitForAnchorVisible(t, anchor) {
+  for (let attempt = 0; attempt < 20 && !anchorVisible(t, anchor); attempt++)
+    await pause()
+  assertAnchorVisible(t, anchor)
 }
 async function tap(t, ratio) {
   t.d
@@ -270,8 +278,8 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   )
   await go(t, '#/library')
   check(
-    'Library has 37 demos plus the first real book',
-    t.d.querySelectorAll('.book-slide').length === 38,
+    'Library has 37 demos, a private title, and two readable public-domain titles',
+    t.d.querySelectorAll('.book-slide').length === 40,
   )
   await click(t, '仙侠奇缘')
   check(
@@ -550,8 +558,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   t.w.innerWidth = 844
   t.w.innerHeight = 390
   t.w.dispatchEvent(new t.w.Event('resize'))
-  await pause()
-  assertAnchorVisible(t, beforeReflow)
+  await waitForAnchorVisible(t, beforeReflow)
   check(
     'Synthetic landscape resize retains the content anchor',
     JSON.stringify(anchorOf(t)) === JSON.stringify(beforeReflow),
@@ -757,6 +764,128 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       !t.d.querySelector('article'),
   )
   t.w.indexedDB.open = originalOpen
+  t.dom.window.close()
+
+  for (const spec of [
+    {
+      id: 'crowd-psychology-1920',
+      title: '群众心理',
+      count: 15,
+      minimum: 80000,
+      edition: '1920年中文译本',
+      author: 'Gustave Le Bon（黎朋）',
+      translator: '吴旭初、杜师业',
+    },
+    {
+      id: 'psychology-and-mechanics',
+      title: '心理与力学',
+      count: 14,
+      minimum: 55000,
+      edition: '1942年',
+      author: '李宗吾',
+    },
+  ]) {
+    const file = path.join(
+      __dirname,
+      `../src/data/books/${spec.id}/chapters.ts`,
+    )
+    const chapters = JSON.parse(
+      readFileSync(file, 'utf8').split('export const chapters: Chapter[] = ')[1],
+    )
+    const body = chapters.flatMap((chapter) => chapter.paragraphs).join('\n')
+    check(
+      `${spec.title} contains the original full chapter sequence`,
+      chapters.length === spec.count &&
+        chapters.every((chapter) => chapter.paragraphs.length > 0) &&
+        body.length > spec.minimum &&
+        chapters.some((chapter) => chapter.title.includes('第一章')) ===
+          (spec.id === 'crowd-psychology-1920'),
+    )
+    check(
+      `${spec.title} body excludes website navigation`,
+      !/跳转到内容|页面工具|姊妹计划|下载按钮|本译文与其原文有分别的版权许可/.test(body),
+    )
+    t = await launch('#/library', undefined, false, new IDBFactory())
+    await input(t, spec.title)
+    check(
+      `${spec.title} appears in Library without a private import`,
+      t.d.querySelectorAll('.book-slide').length === 1 &&
+        t.d.querySelector('.cover-title').textContent === spec.title,
+    )
+    await click(t, `查看《${spec.title}》`)
+    const details = t.d.querySelector('.detail').textContent
+    check(
+      `${spec.title} shows edition, author, public-domain status and source`,
+      details.includes(spec.author) &&
+        details.includes(spec.edition) &&
+        details.includes('公有领域') &&
+        details.includes(spec.translator || spec.author) &&
+        t.d.querySelector('.detail-contents a[href*="zh.wikisource.org"]') &&
+        !!button(t, '开始阅读'),
+    )
+    await click(t, '开始阅读')
+    check(
+      `${spec.title} opens bundled text directly in the paginated Reader`,
+      !!t.d.querySelector('.reader-columns') &&
+        !!t.d.querySelector('.reader-content p') &&
+        t.d.body.textContent.includes('公版原文') &&
+        !t.d.body.textContent.includes('正文文件尚未导入'),
+    )
+    await click(t, '显示阅读工具')
+    await click(t, '目录')
+    const entries = t.d.querySelectorAll('.contents-list button')
+    check(
+      `${spec.title} TOC contains all original reading segments`,
+      entries.length === spec.count,
+    )
+    entries[3].click()
+    await pause()
+    check(
+      `${spec.title} TOC jumps to the chosen real chapter`,
+      t.d.querySelector('.reader-content h1').textContent ===
+        chapters[3].title &&
+        t.d.querySelector('.reader-content p').textContent ===
+          chapters[3].paragraphs[0],
+    )
+    check(
+      `${spec.title} progress reflects the selected chapter`,
+      Number(t.d.querySelector('.reader-persistent-progress progress').value) > 0,
+    )
+    t.w.dispatchEvent(new t.w.Event('pagehide'))
+    await pause()
+    const checkpoint = t.w.localStorage.getItem(key)
+    const position = anchorOf(t, spec.id)
+    check(
+      `${spec.title} stores a stable content anchor without private body`,
+      position.chapterId === chapters[3].id &&
+        position.contentRevision.includes('wikisource-') &&
+        !checkpoint.includes(chapters[3].paragraphs[0]),
+    )
+    check(`${spec.title} has no runtime errors`, t.errors.length === 0)
+    t.dom.window.close()
+    t = await launch(`#/reader/${spec.id}`, checkpoint, false, new IDBFactory())
+    check(
+      `${spec.title} reopens at the same chapter without IndexedDB`,
+      t.d.querySelector('.reader-content h1').textContent ===
+        chapters[3].title &&
+        JSON.stringify(anchorOf(t, spec.id)) === JSON.stringify(position),
+    )
+    await go(t, '#/home')
+    await click(t, '继续阅读')
+    check(
+      `${spec.title} Continue Reading returns directly to Reader`,
+      t.w.location.hash === `#/reader/${spec.id}` &&
+        t.d.querySelector('.reader-content h1').textContent ===
+          chapters[3].title,
+    )
+    t.dom.window.close()
+  }
+  t = await launch('#/reader/general-psychology-6', undefined, false, new IDBFactory())
+  check(
+    'Psychology textbook still has no bundled body after adding public-domain books',
+    !t.d.querySelector('.reader-content') &&
+      t.d.body.textContent.includes('正文文件尚未导入'),
+  )
   t.dom.window.close()
   console.log(
     `\n${checks} checks passed. JSDOM + synthetic geometry only; no real browser layout, touch, safe-area or FPS verification.`,
