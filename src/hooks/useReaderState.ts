@@ -13,6 +13,7 @@ const defaults: ReaderSettings = {
   lineHeight: 1.85,
   pageMargin: 26,
   script: 'original',
+  ambience: 'sky',
   motion: true,
 }
 function readSaved() {
@@ -66,6 +67,9 @@ function readSaved() {
         script: ['original', 'simplified', 'traditional'].includes(s.script)
           ? (s.script as ReaderSettings['script'])
           : defaults.script,
+        ambience: ['sky', 'ocean'].includes(s.ambience)
+          ? (s.ambience as ReaderSettings['ambience'])
+          : defaults.ambience,
         motion: typeof s.motion === 'boolean' ? s.motion : true,
       },
     }
