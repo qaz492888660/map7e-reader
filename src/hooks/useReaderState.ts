@@ -12,6 +12,7 @@ const defaults: ReaderSettings = {
   theme: 'paper',
   lineHeight: 1.85,
   pageMargin: 26,
+  script: 'original',
   motion: true,
 }
 function readSaved() {
@@ -62,6 +63,9 @@ function readSaved() {
         pageMargin: [18, 26, 34].includes(s.pageMargin)
           ? s.pageMargin
           : defaults.pageMargin,
+        script: ['original', 'simplified', 'traditional'].includes(s.script)
+          ? (s.script as ReaderSettings['script'])
+          : defaults.script,
         motion: typeof s.motion === 'boolean' ? s.motion : true,
       },
     }
