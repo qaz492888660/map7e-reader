@@ -246,6 +246,22 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   await click(t, '关闭面板')
   await click(t, '主题')
   await click(t, '字夜读')
+  await click(t, '海洋')
+  const readerOceanVideo = t.d.querySelector('.ocean-reader video')
+  check(
+    'Reader ocean ambience uses the MAP7E Blog underwater video without replacing reading content',
+    !!t.d.querySelector('.reader.ambience-ocean') &&
+      !!readerOceanVideo &&
+      readerOceanVideo.autoplay &&
+      readerOceanVideo.loop &&
+      readerOceanVideo.playsInline &&
+      t.d
+        .querySelector('.ocean-reader source')
+        .getAttribute('src')
+        .includes('blog.map7e.com/videos/underwater.mp4') &&
+      !!t.d.querySelector('.reader-content'),
+  )
+  await click(t, '天空')
   await click(t, '关闭面板')
   check(
     'Night theme changes and persists',
@@ -308,6 +324,26 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       button(t, '仙侠奇缘').getAttribute('aria-pressed') === 'true',
   )
   await go(t, '#/settings')
+  await click(t, '海洋')
+  await go(t, '#/home')
+  const homeOceanVideo = t.d.querySelector('.ocean-space video')
+  check(
+    'Home ocean ambience uses the existing underwater scene and blue Safari chrome',
+    !!t.d.querySelector('.reading-space.ambience-ocean') &&
+      !!homeOceanVideo &&
+      t.d
+        .querySelector('.ocean-space source')
+        .getAttribute('src')
+        .includes('blog.map7e.com/videos/underwater.mp4') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#143f55' &&
+      t.d.body.textContent.includes('A ROOM BENEATH THE WAVES'),
+  )
+  await go(t, '#/settings')
+  await click(t, '天空')
+  check(
+    'Ambience choice persists and can return to sky mode',
+    JSON.parse(t.w.localStorage.getItem(key)).settings.ambience === 'sky',
+  )
   await click(t, '云层动态')
   check(
     'Motion switch stops ambient animation',
