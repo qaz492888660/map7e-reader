@@ -1947,3 +1947,120 @@ h2 {
     animation: none;
   }
 }
+
+
+/* Ocean ambience trial: reuse the underwater scene already hosted by MAP7E Blog. */
+.ocean-ambience {
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 50% 28%, #2b719080, transparent 38%),
+    linear-gradient(180deg, #184f68, #082b40);
+}
+.ocean-video,
+.ocean-poster,
+.ocean-tint {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.ocean-video {
+  object-fit: cover;
+}
+.ocean-poster {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.ocean-tint {
+  z-index: 1;
+}
+.ocean-space {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+.ocean-space .ocean-video {
+  filter: saturate(0.95) brightness(0.9);
+}
+.ocean-space .ocean-tint {
+  background:
+    linear-gradient(180deg, #0d334852 0%, #113c4f22 42%, #092b3f66 100%),
+    radial-gradient(circle at 50% 35%, transparent 15%, #0626381f 76%);
+}
+.reading-space.ambience-ocean {
+  background: #10384c;
+}
+.reading-space.ambience-ocean .space-content {
+  position: relative;
+  z-index: 1;
+}
+.ambience-ocean .home .brand {
+  color: #edf7f8;
+  text-shadow: 0 1px 12px #082a3b52;
+}
+.ambience-ocean .home .brand b,
+.ambience-ocean .home .brand-note,
+.ambience-ocean .home .greeting .eyebrow,
+.ambience-ocean .home .greeting p,
+.ambience-ocean .home .home-footer {
+  color: #d2e7ec;
+}
+.ambience-ocean .home .greeting h1 {
+  color: #f1f8fa;
+  text-shadow: 0 2px 20px #06283842;
+}
+.ambience-ocean .home .greeting h1 span {
+  color: #a8d4df;
+}
+.ambience-ocean .home .home-footer > span {
+  background: #dceff05e;
+}
+.ambience-ocean .home .bubble {
+  background: linear-gradient(145deg, #ffffffa8, #dff4f22e 72%);
+  border-color: #ffffffb8;
+  box-shadow:
+    inset 1px 2px 8px #ffffff70,
+    0 12px 30px #04293c1f;
+  -webkit-backdrop-filter: blur(9px) saturate(120%);
+  backdrop-filter: blur(9px) saturate(120%);
+}
+.ambience-ocean .home .bubble-library {
+  background: linear-gradient(145deg, #f5fbf4a1, #d8f1ec2b);
+}
+
+.paged-reader {
+  isolation: isolate;
+}
+.reader.ambience-ocean {
+  background: #0c2f41;
+}
+.ocean-reader {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+.ocean-reader .ocean-video {
+  filter: saturate(0.82) brightness(0.78);
+}
+.reader.ambience-ocean.theme-paper .ocean-reader .ocean-tint {
+  background: rgba(245, 241, 232, 0.82);
+}
+.reader.ambience-ocean.theme-white .ocean-reader .ocean-tint {
+  background: rgba(252, 252, 250, 0.84);
+}
+.reader.ambience-ocean.theme-night .ocean-reader .ocean-tint {
+  background: rgba(20, 30, 34, 0.72);
+}
+.reader.ambience-ocean .reader-stage {
+  z-index: 1;
+}
+.reader.ambience-ocean .reader-top-controls,
+.reader.ambience-ocean .reader-expanded-controls,
+.reader.ambience-ocean .reader-persistent-progress {
+  z-index: 3;
+}
+.reader.ambience-ocean .pagination-notice {
+  z-index: 2;
+}
