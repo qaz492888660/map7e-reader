@@ -70,5 +70,6 @@ export interface ReaderSettings {
   theme: 'paper' | 'white' | 'night'
   lineHeight: number
   pageMargin: number
+  script: 'original' | 'simplified' | 'traditional'
   motion: boolean
 }
