@@ -23,12 +23,28 @@ const {
   positionAtProgress,
   readingProgress,
 } = load('src/services/readingPosition.ts')
+const {
+  convertText,
+  displayOffsetToSource,
+} = load('src/services/textScript.ts')
 let count = 0
 function check(name, run) {
   run()
   count++
   console.log('PASS ' + name)
 }
+check('Chinese script display converts without mutating the source string', () => {
+  const source = '群眾心理與學習'
+  assert.equal(convertText(source, 'original'), source)
+  assert.equal(convertText(source, 'simplified'), '群众心理与学习')
+  assert.equal(convertText('群众心理与学习', 'traditional'), '群眾心理與學習')
+  assert.equal(source, '群眾心理與學習')
+})
+check('Display offsets map back to stable original-text offsets', () => {
+  assert.equal(displayOffsetToSource('群眾心理', '群众心理', 2), 2)
+  assert.equal(displayOffsetToSource('abcdef', 'abc', 2), 4)
+  assert.equal(displayOffsetToSource('🍁字', '枫字', 1), 2)
+})
 const content = {
   bookId: 'fixture',
   revision: 'v2',

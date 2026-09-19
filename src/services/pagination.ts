@@ -22,6 +22,10 @@ export function pageForAnchor(
 export function measurePages(
   article: HTMLElement,
   width: number,
+  toSourceOffset: (
+    paragraphIndex: number,
+    displayOffset: number,
+  ) => number = (_paragraphIndex, displayOffset) => displayOffset,
 ): ContentAnchor[] {
   const stride = width + COLUMN_GAP
   const count = Math.max(
@@ -74,7 +78,10 @@ export function measurePages(
       else high = mid
     }
     if (low > 0 && /[\uDC00-\uDFFF]/.test(text[low] || '')) low--
-    pages.push({ paragraphIndex, characterOffset: low })
+    pages.push({
+      paragraphIndex,
+      characterOffset: toSourceOffset(paragraphIndex, low),
+    })
   }
   return pages
 }

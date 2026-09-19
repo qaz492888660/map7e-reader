@@ -14,9 +14,11 @@ import {
   measurePages,
   pageForAnchor,
 } from '../services/pagination'
+import { displayOffsetToSource } from '../services/textScript'
 
 export function usePagination(
   chapter: Chapter,
+  displayedParagraphs: string[],
   settings: ReaderSettings,
   anchor: MutableRefObject<ReadingPosition>,
 ) {
@@ -44,7 +46,13 @@ export function usePagination(
         return
       }
       body.style.setProperty('--page-width', `${width}px`)
-      const pages = measurePages(body, width)
+      const pages = measurePages(body, width, (paragraphIndex, displayOffset) =>
+        displayOffsetToSource(
+          chapter.paragraphs[paragraphIndex] || '',
+          displayedParagraphs[paragraphIndex] || '',
+          displayOffset,
+        ),
+      )
       setLayout({
         pages,
         page: pageForAnchor(pages, anchor.current),
@@ -76,6 +84,7 @@ export function usePagination(
     }
   }, [
     chapter,
+    displayedParagraphs,
     settings.fontSize,
     settings.fontFamily,
     settings.lineHeight,

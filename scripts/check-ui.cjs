@@ -233,12 +233,15 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   await click(t, '字体')
   await click(t, '23')
   await click(t, '黑体 / 无衬线')
+  await click(t, '简体')
   check(
-    'Font size and font family change',
+    'Font size, font family and script setting change',
     t.d
       .querySelector('.reader')
       .style.getPropertyValue('--reading-size') === '23px' &&
-      !!t.d.querySelector('.font-sans'),
+      !!t.d.querySelector('.font-sans') &&
+      JSON.parse(t.w.localStorage.getItem(key)).settings.script ===
+        'simplified',
   )
   await click(t, '关闭面板')
   await click(t, '主题')

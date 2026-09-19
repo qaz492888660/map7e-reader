@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -19,6 +20,7 @@ import {
 import PageHeader from './PageHeader'
 import Sheet from './Sheet'
 import Icon from './Icon'
+import { convertText } from '../../services/textScript'
 interface Props {
   book: Book
   content: BookContent
@@ -45,7 +47,21 @@ export default function Reader({
     content.chapters.findIndex((c) => c.id === initial.chapterId),
   )
   const chapter = content.chapters[chapterIndex]
-  const pagination = usePagination(chapter, settings, anchor)
+  const displayChapter = useMemo(
+    () => ({
+      title: convertText(chapter.title, settings.script),
+      paragraphs: chapter.paragraphs.map((text) =>
+        convertText(text, settings.script),
+      ),
+    }),
+    [chapter, settings.script],
+  )
+  const pagination = usePagination(
+    chapter,
+    displayChapter.paragraphs,
+    settings,
+    anchor,
+  )
   const [controls, setControls] = useState(false)
   const [panel, setPanel] = useState<
     'contents' | 'font' | 'theme' | 'settings' | null
@@ -219,8 +235,8 @@ export default function Reader({
                   ? '公版原文 · ' + (book.edition || book.title)
                   : '私人导入 · ' + (book.edition || book.title)}
             </div>
-            <h1>{chapter.title}</h1>
-            {chapter.paragraphs.map((text, i) => (
+            <h1>{displayChapter.title}</h1>
+            {displayChapter.paragraphs.map((text, i) => (
               <p data-paragraph={i} key={i}>
                 {text}
               </p>
@@ -241,7 +257,7 @@ export default function Reader({
               onBack={onBack}
               onSettings={() => setPanel('settings')}
             />
-            <p>{chapter.title}</p>
+            <p>{displayChapter.title}</p>
           </div>
           <div className="reader-expanded-controls">
             <div className="reader-page-status" aria-live="polite">
@@ -316,7 +332,7 @@ export default function Reader({
                     onClick={() => moveChapter(i)}
                   >
                     <span>{String(i + 1).padStart(2, '0')}</span>
-                    {c.title}
+                    {convertText(c.title, settings.script)}
                     {i === chapterIndex && <small>正在读</small>}
                   </button>
                 </li>
@@ -351,6 +367,8 @@ export default function Reader({
                   </button>
                 ))}
               </div>
+              <p className="setting-label">文字</p>
+              <ScriptOptions settings={settings} onSettings={onSettings} />
               <p className="setting-label">行距</p>
               <div className="option-row">
                 {[1.65, 1.85, 2.05].map((lineHeight) => (
@@ -387,6 +405,30 @@ export default function Reader({
     </main>
   )
 }
+export function ScriptOptions({
+  settings,
+  onSettings,
+}: {
+  settings: ReaderSettings
+  onSettings: (s: ReaderSettings) => void
+}) {
+  return (
+    <div className="option-row script-options">
+      {(['original', 'simplified', 'traditional'] as const).map(
+        (script, i) => (
+          <button
+            key={script}
+            aria-pressed={settings.script === script}
+            onClick={() => onSettings({ ...settings, script })}
+          >
+            {['原文', '简体', '繁体'][i]}
+          </button>
+        ),
+      )}
+    </div>
+  )
+}
+
 export function ThemeOptions({
   settings,
   onSettings,
