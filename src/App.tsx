@@ -47,9 +47,13 @@ export default function App() {
     document
       .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute('content', color)
-    if (inReader)
+    if (inReader) {
       document.documentElement.dataset.readerSurface = settings.theme
-    else delete document.documentElement.dataset.readerSurface
+      delete document.documentElement.dataset.ambience
+    } else {
+      delete document.documentElement.dataset.readerSurface
+      document.documentElement.dataset.ambience = previewAmbience
+    }
   }, [page.name, settings.theme, settings.ambience])
   const books = catalog.map((book) =>
     book.sourceType === 'private' && privateLibrary.records[book.id]
