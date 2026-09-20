@@ -276,11 +276,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader sky ambience previews immediately with the illustrated scenic layer',
     !!t.d.querySelector('.reader.ambience-sky') &&
-      !!t.d.querySelector('.scenic-reader.scenic-sky .scenic-motion-video') &&
+      !!t.d.querySelector('.scenic-reader.scenic-sky .scenic-base-video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-sky .scenic-motion-video')
+        .querySelector('.scenic-reader.scenic-sky .scenic-base-video')
         .getAttribute('src')
-        .includes('5084245-uhd_3840_2160_30fps.mp4') &&
+        .includes('/ambience/sky.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '关闭面板')
@@ -358,11 +358,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews sky ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-sky') &&
-      !!t.d.querySelector('.scenic-space.scenic-sky .scenic-motion-video') &&
+      !!t.d.querySelector('.scenic-space.scenic-sky .scenic-base-video') &&
       t.d
-        .querySelector('.scenic-space.scenic-sky .scenic-motion-video')
+        .querySelector('.scenic-space.scenic-sky .scenic-base-video')
         .getAttribute('src')
-        .includes('5084245-uhd_3840_2160_30fps.mp4') &&
+        .includes('/ambience/sky.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
   )
   await click(t, '山海')
