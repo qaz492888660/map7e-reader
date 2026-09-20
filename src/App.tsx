@@ -33,7 +33,8 @@ export default function App() {
     const inReader = page.name === 'reader'
     const color = inReader
       ? readerSurfaces[settings.theme]
-      : page.name === 'home' && settings.ambience === 'ocean'
+      : (page.name === 'home' || page.name === 'settings') &&
+          settings.ambience === 'ocean'
         ? '#143f55'
         : '#dfe7e6'
     document
@@ -161,12 +162,14 @@ export default function App() {
       ) : (
         <div
           className={`reading-space ${settings.motion ? '' : 'motion-paused'} ${
-            page.name === 'home' && settings.ambience === 'ocean'
+            (page.name === 'home' || page.name === 'settings') &&
+            settings.ambience === 'ocean'
               ? 'ambience-ocean'
               : ''
           }`}
         >
-          {page.name === 'home' && settings.ambience === 'ocean' ? (
+          {(page.name === 'home' || page.name === 'settings') &&
+          settings.ambience === 'ocean' ? (
             <OceanBackground motion={settings.motion} variant="space" />
           ) : (
             <div className="sky" aria-hidden="true">
