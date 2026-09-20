@@ -36,6 +36,7 @@ export default function App() {
       sky: '#9ccfe5',
       ocean: '#143f55',
       shanhai: '#78989a',
+      night: '#0b1420',
     } as const
     const previewAmbience =
       page.name === 'home' || page.name === 'settings'
@@ -188,7 +189,7 @@ export default function App() {
               scene={
                 (page.name === 'home' || page.name === 'settings'
                   ? settings.ambience
-                  : 'sky') as 'sky' | 'shanhai'
+                  : 'sky') as 'sky' | 'shanhai' | 'night'
               }
               motion={settings.motion}
               variant="space"

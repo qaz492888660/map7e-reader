@@ -34,7 +34,9 @@ export default function Home({
             ? 'A ROOM BENEATH THE WAVES'
             : ambience === 'shanhai'
               ? 'A ROOM BETWEEN MOUNTAINS AND SEA'
-              : 'A ROOM ABOVE THE CLOUDS'}
+              : ambience === 'night'
+                ? 'A ROOM UNDER THE NIGHT SKY'
+                : 'A ROOM ABOVE THE CLOUDS'}
         </div>
         <h1 tabIndex={-1}>
           你好，枫<span>。</span>

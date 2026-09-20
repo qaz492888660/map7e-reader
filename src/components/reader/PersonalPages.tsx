@@ -98,8 +98,8 @@ export function Settings({
         <ScriptOptions settings={settings} onSettings={onSettings} />
         <div className="motion-setting">
           <span>
-            <strong>云的呼吸</strong>
-            <small>轻微的环境动态，跟随系统减少动态设置</small>
+            <strong>环境动态</strong>
+            <small>天空、山海与暗夜的背景动态，跟随系统减少动态设置</small>
           </span>
           <button
             className="switch"

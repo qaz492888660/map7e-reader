@@ -14,6 +14,11 @@ const SCENES = {
     motionVideo:
       'https://videos.pexels.com/video-files/5701094/5701094-uhd_3238_2160_25fps.mp4',
   },
+  night: {
+    poster: null,
+    baseVideo: '/ambience/sky.mp4?v=night-scene-1',
+    motionVideo: null,
+  },
 } as const
 
 export default function ScenicBackground({
@@ -21,7 +26,7 @@ export default function ScenicBackground({
   motion,
   variant,
 }: {
-  scene: 'sky' | 'shanhai'
+  scene: 'sky' | 'shanhai' | 'night'
   motion: boolean
   variant: 'space' | 'reader'
 }) {

@@ -2069,9 +2069,11 @@ h2 {
 html[data-ambience='sky'] { --app-background: #8ec5df; }
 html[data-ambience='ocean'] { --app-background: #143f55; }
 html[data-ambience='shanhai'] { --app-background: #657f83; }
+html[data-ambience='night'] { --app-background: #0b1420; }
 
 .reading-space.ambience-sky { background: #8ec5df; }
 .reading-space.ambience-shanhai { background: #657f83; }
+.reading-space.ambience-night { background: #0b1420; }
 .reading-space .space-content { position: relative; z-index: 1; }
 
 .scenic-ambience {
@@ -2081,6 +2083,7 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 }
 .scenic-sky { background: #5895c6; }
 .scenic-shanhai { background: #93acb9; }
+.scenic-night { background: #08111d; }
 .scenic-space { position: fixed; inset: 0; z-index: 0; }
 .scenic-reader { position: absolute; inset: 0; z-index: 0; }
 .scenic-poster,
@@ -2134,6 +2137,13 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .scenic-space.scenic-shanhai .scenic-tint {
   background: linear-gradient(180deg,#294c550d 0%,transparent 58%,#233f451d 100%);
 }
+.scenic-space.scenic-night .scenic-base-video {
+  filter: brightness(.3) saturate(.58) contrast(1.12) hue-rotate(8deg);
+}
+.scenic-space.scenic-night .scenic-tint {
+  background:
+    linear-gradient(180deg,rgba(3,9,18,.48) 0%,rgba(7,18,32,.3) 52%,rgba(3,8,16,.64) 100%);
+}
 
 .ambience-sky .home .brand,
 .ambience-sky .home .greeting h1 { color: #315864; }
@@ -2151,6 +2161,16 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .ambience-shanhai .home .greeting .eyebrow,
 .ambience-shanhai .home .greeting p,
 .ambience-shanhai .home .home-footer { color: #e7efeb; }
+.ambience-night .home .brand,
+.ambience-night .home .greeting h1 {
+  color: #f1f5fa;
+  text-shadow: 0 2px 20px #000a;
+}
+.ambience-night .home .brand b,
+.ambience-night .home .brand-note,
+.ambience-night .home .greeting .eyebrow,
+.ambience-night .home .greeting p,
+.ambience-night .home .home-footer { color: #b8c8d8; }
 .ambience-sky .home .bubble,
 .ambience-shanhai .home .bubble {
   background: linear-gradient(145deg,#ffffffa6,#edf7f15c 58%,#d2e2dc30);
@@ -2159,10 +2179,21 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   -webkit-backdrop-filter: blur(8px) saturate(108%);
   backdrop-filter: blur(8px) saturate(108%);
 }
+.ambience-night .home .bubble {
+  background: linear-gradient(145deg,#17283ea8,#0f1c2d75 58%,#09121e66);
+  border-color: #9eb7cc42;
+  color: #eef5fb;
+  box-shadow: inset 1px 2px 9px #d9ecff1a,0 16px 34px #0005;
+  -webkit-backdrop-filter: blur(10px) saturate(105%);
+  backdrop-filter: blur(10px) saturate(105%);
+}
+.ambience-night .home .bubble-meta,
+.ambience-night .home .bubble-book { color: #b7c8d6; }
 
 .ambience-sky .personal-page .settings-section,
 .ambience-shanhai .personal-page .settings-section,
-.ambience-ocean .personal-page .settings-section {
+.ambience-ocean .personal-page .settings-section,
+.ambience-night .personal-page .settings-section {
   border-radius: 24px;
   padding: 22px 18px;
   border: 1px solid #ffffff70;
@@ -2171,41 +2202,57 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 }
 .ambience-sky .personal-page .settings-section { background: #f7fbf77d; }
 .ambience-shanhai .personal-page,
-.ambience-ocean .personal-page { color: #eef5f1; text-shadow: 0 1px 12px #18313a24; }
+.ambience-ocean .personal-page,
+.ambience-night .personal-page { color: #eef5f1; text-shadow: 0 1px 12px #0005; }
 .ambience-shanhai .personal-page .page-intro p,
 .ambience-shanhai .personal-page .settings-note,
 .ambience-shanhai .personal-page .collection-note,
 .ambience-ocean .personal-page .page-intro p,
 .ambience-ocean .personal-page .settings-note,
-.ambience-ocean .personal-page .collection-note { color: #d9e7e3; }
+.ambience-ocean .personal-page .collection-note,
+.ambience-night .personal-page .page-intro p,
+.ambience-night .personal-page .settings-note,
+.ambience-night .personal-page .collection-note { color: #c7d5e0; }
 .ambience-shanhai .personal-page .settings-section,
 .ambience-ocean .personal-page .settings-section {
   background: #1d3e416b;
   border-color: #ffffff4d;
 }
 .ambience-shanhai .personal-page .option-row > button,
-.ambience-ocean .personal-page .option-row > button {
+.ambience-ocean .personal-page .option-row > button,
+.ambience-night .personal-page .option-row > button {
   background: #eff8f51f;
   border-color: #ffffff5c;
 }
 .ambience-shanhai .personal-page .option-row > button[aria-pressed='true'],
-.ambience-ocean .personal-page .option-row > button[aria-pressed='true'] { outline-color: #e2f3ed; }
+.ambience-ocean .personal-page .option-row > button[aria-pressed='true'],
+.ambience-night .personal-page .option-row > button[aria-pressed='true'] { outline-color: #e2f3ed; }
 
 .reader.ambience-sky,
-.reader.ambience-shanhai { isolation: isolate; }
+.reader.ambience-shanhai,
+.reader.ambience-night { isolation: isolate; }
 .reader.ambience-sky { background: #8ec5df; }
 .reader.ambience-shanhai { background: #657f83; }
+.reader.ambience-night { background: #0b1420; }
 .reader.ambience-sky .reader-stage,
-.reader.ambience-shanhai .reader-stage { z-index: 1; }
+.reader.ambience-shanhai .reader-stage,
+.reader.ambience-night .reader-stage { z-index: 1; }
 .reader.ambience-sky .reader-top-controls,
 .reader.ambience-sky .reader-expanded-controls,
 .reader.ambience-sky .reader-persistent-progress,
 .reader.ambience-shanhai .reader-top-controls,
 .reader.ambience-shanhai .reader-expanded-controls,
-.reader.ambience-shanhai .reader-persistent-progress { z-index: 3; }
+.reader.ambience-shanhai .reader-persistent-progress,
+.reader.ambience-night .reader-top-controls,
+.reader.ambience-night .reader-expanded-controls,
+.reader.ambience-night .reader-persistent-progress { z-index: 3; }
 .scenic-reader .scenic-base-video {
   opacity: .92;
   filter: saturate(.72) brightness(.86);
+}
+.scenic-reader.scenic-night .scenic-base-video {
+  opacity: 1;
+  filter: brightness(.26) saturate(.5) contrast(1.12) hue-rotate(8deg);
 }
 .scenic-reader .scenic-motion-video {
   opacity: .3;
@@ -2218,3 +2265,6 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.68); }
 .reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.72); }
 .reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint { background: rgba(24,35,38,.69); }
+.reader.ambience-night.theme-paper .scenic-reader .scenic-tint { background: rgba(16,24,34,.74); }
+.reader.ambience-night.theme-white .scenic-reader .scenic-tint { background: rgba(18,26,36,.76); }
+.reader.ambience-night.theme-night .scenic-reader .scenic-tint { background: rgba(5,10,18,.52); }
