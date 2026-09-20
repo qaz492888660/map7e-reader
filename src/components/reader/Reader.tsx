@@ -173,6 +173,7 @@ export default function Reader({
         <OceanBackground motion={settings.motion} variant="reader" />
       ) : (
         <ScenicBackground
+          key={settings.ambience}
           scene={settings.ambience}
           motion={settings.motion}
           variant="reader"

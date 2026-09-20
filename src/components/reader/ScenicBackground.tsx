@@ -4,12 +4,12 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    video: 'https://videos.pexels.com/video-files/5084245/5084245-uhd_3840_2160_30fps.mp4',
-    poster: '/ambience/sky.svg',
+    video: '/ambience/sky.mp4',
+    poster: '/ambience/sky.webp',
   },
   shanhai: {
-    video: 'https://videos.pexels.com/video-files/29329514/12642734_1920_1080_30fps.mp4',
-    poster: '/ambience/shanhai.svg',
+    video: '/ambience/shanhai.mp4',
+    poster: '/ambience/shanhai.webp',
   },
 } as const
 
@@ -25,10 +25,6 @@ export default function ScenicBackground({
   const [reducedMotion, setReducedMotion] = useState(false)
   const [failed, setFailed] = useState(false)
   const source = SCENES[scene]
-
-  useEffect(() => {
-    setFailed(false)
-  }, [scene])
 
   useEffect(() => {
     const media = window.matchMedia?.(REDUCED_MOTION_QUERY)
@@ -55,13 +51,13 @@ export default function ScenicBackground({
       />
       {animate && (
         <video
-          key={source.video}
+          key={scene}
           className="scenic-video"
           autoPlay
           muted
           loop
           playsInline
-          preload="auto"
+          preload="metadata"
           tabIndex={-1}
           poster={source.poster}
           onError={() => setFailed(true)}

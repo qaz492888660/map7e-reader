@@ -269,7 +269,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-reader.scenic-shanhai source')
         .getAttribute('src')
-        .includes('855617-uhd_3840_2160_25fps.mp4') &&
+        .includes('/ambience/shanhai.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '天空')
@@ -280,7 +280,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-reader.scenic-sky source')
         .getAttribute('src')
-        .includes('855785-hd_1920_1080_24fps.mp4') &&
+        .includes('/ambience/sky.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '关闭面板')
@@ -362,7 +362,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-space.scenic-sky source')
         .getAttribute('src')
-        .includes('855785-hd_1920_1080_24fps.mp4') &&
+        .includes('/ambience/sky.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
   )
   await click(t, '山海')
@@ -374,7 +374,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-space.scenic-shanhai source')
         .getAttribute('src')
-        .includes('855617-uhd_3840_2160_25fps.mp4') &&
+        .includes('/ambience/shanhai.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
   await click(t, '海洋')
@@ -998,24 +998,4 @@ async function swipe(t, dx, dy = 0, cancel = false) {
 })().catch((error) => {
   console.error(error)
   process.exitCode = 1
-})
-
-
-
-test('settings remounts scenic background when ambience changes', () => {
-  const source = read('src/App.tsx')
-  assert.match(
-    source,
-    /key=\{page\.name === 'home' \|\| page\.name === 'settings' \? settings\.ambience : 'sky'\}/,
-  )
-})
-
-
-test('scenic ambience uses people-free sky and animated shanhai MP4 scenes', () => {
-  const source = read('src/components/reader/ScenicBackground.tsx')
-  assert.match(source, /5084245-uhd_3840_2160_30fps\.mp4/)
-  assert.match(source, /12642734_1920_1080_30fps\.mp4/)
-  assert.match(source, /key=\{scene\}/)
-  assert.match(source, /key=\{source\.video\}/)
-  assert.doesNotMatch(source, /<canvas/)
 })

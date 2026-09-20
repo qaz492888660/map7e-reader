@@ -2079,6 +2079,8 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   pointer-events: none;
   background: #78989a;
 }
+.scenic-sky { background: #5895c6; }
+.scenic-shanhai { background: #93acb9; }
 .scenic-space { position: fixed; inset: 0; z-index: 0; }
 .scenic-reader { position: absolute; inset: 0; z-index: 0; }
 .scenic-poster,
@@ -2183,10 +2185,10 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .reader.ambience-shanhai .reader-top-controls,
 .reader.ambience-shanhai .reader-expanded-controls,
 .reader.ambience-shanhai .reader-persistent-progress { z-index: 3; }
-.scenic-reader .scenic-video { filter: saturate(.58) brightness(.82); }
-.reader.ambience-sky.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.8); }
-.reader.ambience-sky.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.83); }
-.reader.ambience-sky.theme-night .scenic-reader .scenic-tint { background: rgba(27,39,44,.73); }
-.reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.82); }
-.reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.85); }
-.reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint { background: rgba(24,35,38,.77); }
+.scenic-reader .scenic-video { filter: saturate(.72) brightness(.9); }
+.reader.ambience-sky.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.69); }
+.reader.ambience-sky.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.73); }
+.reader.ambience-sky.theme-night .scenic-reader .scenic-tint { background: rgba(27,39,44,.69); }
+.reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.68); }
+.reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.72); }
+.reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint { background: rgba(24,35,38,.69); }
