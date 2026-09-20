@@ -2065,100 +2065,62 @@ h2 {
   z-index: 2;
 }
 
-/* Scenic ambience: sky + shanhai use the same video-background model as ocean. */
+/* Scenic ambience: one deterministic scene at a time. */
 html[data-ambience='sky'] { --app-background: #8ec5df; }
 html[data-ambience='ocean'] { --app-background: #143f55; }
 html[data-ambience='shanhai'] { --app-background: #657f83; }
 
 .reading-space.ambience-sky { background: #8ec5df; }
 .reading-space.ambience-shanhai { background: #657f83; }
-.reading-space .space-content {
-  position: relative;
-  z-index: 1;
-}
+.reading-space .space-content { position: relative; z-index: 1; }
+
 .scenic-ambience {
   overflow: hidden;
   pointer-events: none;
   background: #78989a;
 }
-.scenic-space {
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-}
-.scenic-reader {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
+.scenic-space { position: fixed; inset: 0; z-index: 0; }
+.scenic-reader { position: absolute; inset: 0; z-index: 0; }
+.scenic-poster,
 .scenic-video,
-.scenic-poster {
+.scenic-tint {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
+.scenic-poster {
+  z-index: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
 .scenic-video {
+  z-index: 1;
+  display: block;
   object-fit: cover;
   object-position: center;
 }
-.scenic-poster {
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
-.scenic-anime-art {
-  position: absolute;
-  inset: 0;
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-  pointer-events: none;
-}
-.scenic-space .scenic-video {
+.scenic-tint { z-index: 2; }
+.scenic-space.scenic-sky .scenic-video {
   filter: saturate(1.12) contrast(.94) brightness(1.06);
 }
-.scenic-space.scenic-sky .scenic-anime-art {
-  opacity: .46;
-  mix-blend-mode: soft-light;
-}
-.scenic-space.scenic-shanhai .scenic-anime-art {
-  opacity: .72;
-  mix-blend-mode: normal;
+.scenic-space.scenic-sky .scenic-tint {
+  background: linear-gradient(180deg,#6bb5da10 0%,transparent 48%,#eef7ff20 100%);
 }
 .scenic-space.scenic-shanhai .scenic-video {
-  opacity: .68;
-  filter: saturate(.82) contrast(.9) brightness(.94);
-}
-.scenic-reader .scenic-anime-art {
-  opacity: .36;
-}
-.scenic-tint {
-  position: absolute;
-  inset: 0;
-}
-.scenic-space.scenic-sky .scenic-tint {
-  background:
-    linear-gradient(180deg, #6bb5da12 0%, transparent 42%, #eef0e43b 100%),
-    radial-gradient(circle at 50% 42%, transparent 32%, #345d6d16 100%);
+  filter: saturate(.92) contrast(.94) brightness(.96);
 }
 .scenic-space.scenic-shanhai .scenic-tint {
-  background:
-    linear-gradient(180deg, #294c5524 0%, transparent 38%, #233f453d 100%),
-    radial-gradient(circle at 50% 44%, transparent 30%, #18373b2e 100%);
+  background: linear-gradient(180deg,#294c551c 0%,transparent 44%,#233f452b 100%);
 }
 
-/* Home glass stays readable while the video remains visible. */
 .ambience-sky .home .brand,
-.ambience-sky .home .greeting h1 {
-  color: #315864;
-}
+.ambience-sky .home .greeting h1 { color: #315864; }
 .ambience-sky .home .brand-note,
 .ambience-sky .home .greeting .eyebrow,
 .ambience-sky .home .greeting p,
-.ambience-sky .home .home-footer {
-  color: #496d77;
-}
+.ambience-sky .home .home-footer { color: #496d77; }
 .ambience-shanhai .home .brand,
 .ambience-shanhai .home .greeting h1 {
   color: #f4f7f3;
@@ -2168,30 +2130,16 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .ambience-shanhai .home .brand-note,
 .ambience-shanhai .home .greeting .eyebrow,
 .ambience-shanhai .home .greeting p,
-.ambience-shanhai .home .home-footer {
-  color: #e7efeb;
-}
+.ambience-shanhai .home .home-footer { color: #e7efeb; }
 .ambience-sky .home .bubble,
 .ambience-shanhai .home .bubble {
-  background:
-    radial-gradient(circle at 28% 18%, #ffffffd9, transparent 36%),
-    linear-gradient(145deg, #ffffff9a, #edf7f154 58%, #d2e2dc2b);
+  background: linear-gradient(145deg,#ffffffa6,#edf7f15c 58%,#d2e2dc30);
   border-color: #ffffffc7;
-  box-shadow:
-    inset 1px 2px 9px #ffffff9f,
-    inset -3px -5px 12px #bed1cb28,
-    0 16px 34px #304f5b1a;
+  box-shadow: inset 1px 2px 9px #ffffff9f,0 16px 34px #304f5b1a;
   -webkit-backdrop-filter: blur(8px) saturate(108%);
   backdrop-filter: blur(8px) saturate(108%);
 }
-.ambience-shanhai .home .bubble {
-  background:
-    radial-gradient(circle at 27% 18%, #ffffffc2, transparent 35%),
-    linear-gradient(145deg, #eef7f08f, #dce8df48 58%, #9db7b52e);
-  color: #34575b;
-}
 
-/* Settings live-preview stays legible over all three videos/scenes. */
 .ambience-sky .personal-page .settings-section,
 .ambience-shanhai .personal-page .settings-section,
 .ambience-ocean .personal-page .settings-section {
@@ -2201,22 +2149,15 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   -webkit-backdrop-filter: blur(11px) saturate(108%);
   backdrop-filter: blur(11px) saturate(108%);
 }
-.ambience-sky .personal-page .settings-section {
-  background: #f7fbf77d;
-}
+.ambience-sky .personal-page .settings-section { background: #f7fbf77d; }
 .ambience-shanhai .personal-page,
-.ambience-ocean .personal-page {
-  color: #eef5f1;
-  text-shadow: 0 1px 12px #18313a24;
-}
+.ambience-ocean .personal-page { color: #eef5f1; text-shadow: 0 1px 12px #18313a24; }
 .ambience-shanhai .personal-page .page-intro p,
 .ambience-shanhai .personal-page .settings-note,
 .ambience-shanhai .personal-page .collection-note,
 .ambience-ocean .personal-page .page-intro p,
 .ambience-ocean .personal-page .settings-note,
-.ambience-ocean .personal-page .collection-note {
-  color: #d9e7e3;
-}
+.ambience-ocean .personal-page .collection-note { color: #d9e7e3; }
 .ambience-shanhai .personal-page .settings-section,
 .ambience-ocean .personal-page .settings-section {
   background: #1d3e416b;
@@ -2228,48 +2169,24 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   border-color: #ffffff5c;
 }
 .ambience-shanhai .personal-page .option-row > button[aria-pressed='true'],
-.ambience-ocean .personal-page .option-row > button[aria-pressed='true'] {
-  outline-color: #e2f3ed;
-}
+.ambience-ocean .personal-page .option-row > button[aria-pressed='true'] { outline-color: #e2f3ed; }
 
-/* Reader uses the same moving footage but keeps it well below the text. */
 .reader.ambience-sky,
-.reader.ambience-shanhai {
-  isolation: isolate;
-}
+.reader.ambience-shanhai { isolation: isolate; }
 .reader.ambience-sky { background: #8ec5df; }
 .reader.ambience-shanhai { background: #657f83; }
 .reader.ambience-sky .reader-stage,
-.reader.ambience-shanhai .reader-stage {
-  z-index: 1;
-}
+.reader.ambience-shanhai .reader-stage { z-index: 1; }
 .reader.ambience-sky .reader-top-controls,
 .reader.ambience-sky .reader-expanded-controls,
 .reader.ambience-sky .reader-persistent-progress,
 .reader.ambience-shanhai .reader-top-controls,
 .reader.ambience-shanhai .reader-expanded-controls,
-.reader.ambience-shanhai .reader-persistent-progress {
-  z-index: 3;
-}
-.scenic-reader .scenic-video,
-.scenic-reader .scenic-poster {
-  filter: saturate(0.58) brightness(0.82);
-}
-.reader.ambience-sky.theme-paper .scenic-reader .scenic-tint {
-  background: rgba(245, 241, 232, 0.8);
-}
-.reader.ambience-sky.theme-white .scenic-reader .scenic-tint {
-  background: rgba(252, 252, 250, 0.83);
-}
-.reader.ambience-sky.theme-night .scenic-reader .scenic-tint {
-  background: rgba(27, 39, 44, 0.73);
-}
-.reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint {
-  background: rgba(245, 241, 232, 0.82);
-}
-.reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint {
-  background: rgba(252, 252, 250, 0.85);
-}
-.reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint {
-  background: rgba(24, 35, 38, 0.77);
-}
+.reader.ambience-shanhai .reader-persistent-progress { z-index: 3; }
+.scenic-reader .scenic-video { filter: saturate(.58) brightness(.82); }
+.reader.ambience-sky.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.8); }
+.reader.ambience-sky.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.83); }
+.reader.ambience-sky.theme-night .scenic-reader .scenic-tint { background: rgba(27,39,44,.73); }
+.reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.82); }
+.reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.85); }
+.reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint { background: rgba(24,35,38,.77); }
