@@ -2282,3 +2282,43 @@ html[data-ambience='night'] { --app-background: #0b1420; }
 .reader.ambience-night .reader-persistent-progress {
   color: #b9ccdc;
 }
+
+/* Full-viewport film shown only on an initial home load. The ambience remains underneath. */
+html[data-opening='true'] { background: #3175a0; }
+.opening-intro {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1000;
+  overflow: hidden;
+  background: #143f55;
+  opacity: 1;
+  transition: opacity .9s ease-in-out;
+}
+.opening-intro-leaving {
+  opacity: 0;
+  pointer-events: none;
+}
+.opening-intro-video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #3175a0;
+}
+.opening-intro-skip {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 16px);
+  right: calc(env(safe-area-inset-right, 0px) + 16px);
+  padding: 9px 15px;
+  border: 1px solid #fff9;
+  border-radius: 30px;
+  background: #103f5b9e;
+  color: #fff;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.opening-intro-skip:focus-visible { outline: 2px solid white; outline-offset: 3px; }

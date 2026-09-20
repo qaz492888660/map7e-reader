@@ -189,9 +189,34 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Home has only four bubble entries and no carousel',
     t.d.querySelectorAll('.bubble').length === 4 &&
       !t.d.querySelector('.book-carousel') &&
-      t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5' &&
+      !!t.d.querySelector('.reading-space.ambience-ocean') &&
+      !!t.d.querySelector('.ocean-space video') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#3175a0' &&
       !t.d.documentElement.dataset.readerSurface,
   )
+  check(
+    'Initial home shows an independent full-screen video with a skip control',
+    !!t.d.querySelector('.opening-intro[role="dialog"] video[src^="/opening/sky-to-sea.mp4"]') &&
+      !!button(t, '跳过开场') &&
+      !t.d.querySelector('.scenic-space'),
+  )
+  await click(t, '跳过开场')
+  await new Promise((resolve) => setTimeout(resolve, 1050))
+  check(
+    'Skipping fades into the existing ocean home without changing the saved ambience',
+    !t.d.querySelector('.opening-intro') &&
+      !!t.d.querySelector('.ocean-space video') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#143f55' &&
+      !t.w.localStorage.getItem(key),
+  )
+  const motionlessHome = await launch('#/home', undefined, false, new IDBFactory(), true)
+  check(
+    'Reduced motion opens directly on the ocean home without the film',
+    !motionlessHome.d.querySelector('.opening-intro') &&
+      !!motionlessHome.d.querySelector('.reading-space.ambience-ocean') &&
+      motionlessHome.d.querySelector('meta[name="theme-color"]').content === '#143f55',
+  )
+  motionlessHome.dom.window.close()
   await click(t, '我的书库')
   check(
     'Home opens an independent Library with no bubbles',
@@ -439,6 +464,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Home ocean ambience uses the existing underwater scene and blue Safari chrome',
     !!t.d.querySelector('.reading-space.ambience-ocean') &&
+      !t.d.querySelector('.opening-intro') &&
       !!homeOceanVideo &&
       t.d
         .querySelector('.ocean-space source')

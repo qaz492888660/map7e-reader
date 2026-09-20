@@ -11,10 +11,18 @@
     <script>
       try {
         const saved = JSON.parse(localStorage.getItem('map7e-reader:v1') || 'null')
+        const opening =
+          (!location.hash || /^#\/?(?:home)?$/.test(location.hash)) &&
+          saved?.settings?.motion !== false &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches
+        if (opening) {
+          document.documentElement.dataset.opening = 'true'
+          document.querySelector('meta[name="theme-color"]').content = '#3175a0'
+        }
         const openingNight =
           saved?.settings?.ambience === 'night' &&
           (!location.hash || /^#\/(home|settings|reader\/)/.test(location.hash))
-        if (openingNight) {
+        if (openingNight && !opening) {
           document.documentElement.dataset.ambience = 'night'
           document.querySelector('meta[name="theme-color"]').content = '#0b1420'
         }

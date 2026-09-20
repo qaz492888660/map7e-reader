@@ -19,13 +19,24 @@ import ImportBook from './components/reader/ImportBook'
 import { ReadingHistory, Settings } from './components/reader/PersonalPages'
 import OceanBackground from './components/reader/OceanBackground'
 import ScenicBackground from './components/reader/ScenicBackground'
+import OpeningIntro from './components/reader/OpeningIntro'
 
 export default function App() {
   const { page, navigate, back } = usePage()
   const saved = useReaderState()
   const privateLibrary = usePrivateLibrary()
   const { settings, setSettings } = saved
+  const [opening, setOpening] = useState(
+    () =>
+      page.name === 'home' &&
+      settings.motion &&
+      !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+  )
+  useEffect(() => {
+    if (page.name !== 'home' && opening) setOpening(false)
+  }, [page.name, opening])
   useLayoutEffect(() => {
+    if (!opening) delete document.documentElement.dataset.opening
     const readerSurfaces = {
       paper: '#f5f1e8',
       white: '#fcfcfa',
@@ -42,7 +53,7 @@ export default function App() {
       page.name === 'home' || page.name === 'settings'
         ? settings.ambience
         : 'sky'
-    const color = inReader
+    const color = opening && page.name === 'home' ? '#3175a0' : inReader
       ? settings.ambience === 'night'
         ? ambienceChrome.night
         : readerSurfaces[settings.theme]
@@ -59,7 +70,7 @@ export default function App() {
       delete document.documentElement.dataset.readerSurface
       document.documentElement.dataset.ambience = previewAmbience
     }
-  }, [page.name, settings.theme, settings.ambience])
+  }, [page.name, settings.theme, settings.ambience, opening])
   const books = catalog.map((book) =>
     book.sourceType === 'private' && privateLibrary.records[book.id]
       ? {
@@ -303,6 +314,9 @@ export default function App() {
             }
           }}
         />
+      )}
+      {opening && page.name === 'home' && (
+        <OpeningIntro onComplete={() => setOpening(false)} />
       )}
     </>
   )

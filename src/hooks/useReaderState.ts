@@ -13,7 +13,7 @@ const defaults: ReaderSettings = {
   lineHeight: 1.85,
   pageMargin: 26,
   script: 'original',
-  ambience: 'sky',
+  ambience: 'ocean',
   motion: true,
 }
 function readSaved() {
