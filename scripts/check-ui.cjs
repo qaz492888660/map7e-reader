@@ -269,7 +269,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-reader.scenic-shanhai source')
         .getAttribute('src')
-        .includes('mixkit-sunset-over-the-sea-4318-large.mp4') &&
+        .includes('855617-uhd_3840_2160_25fps.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '天空')
@@ -280,7 +280,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-reader.scenic-sky source')
         .getAttribute('src')
-        .includes('mixkit-blue-sky-seen-directly-with-some-clouds-moving-21574-large.mp4') &&
+        .includes('855785-hd_1920_1080_24fps.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '关闭面板')
@@ -362,7 +362,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-space.scenic-sky source')
         .getAttribute('src')
-        .includes('mixkit-blue-sky-seen-directly-with-some-clouds-moving-21574-large.mp4') &&
+        .includes('855785-hd_1920_1080_24fps.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
   )
   await click(t, '山海')
@@ -374,7 +374,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d
         .querySelector('.scenic-space.scenic-shanhai source')
         .getAttribute('src')
-        .includes('mixkit-sunset-over-the-sea-4318-large.mp4') &&
+        .includes('855617-uhd_3840_2160_25fps.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
   await click(t, '海洋')
