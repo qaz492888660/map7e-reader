@@ -18,6 +18,7 @@ import MissingBook from './components/reader/MissingBook'
 import ImportBook from './components/reader/ImportBook'
 import { ReadingHistory, Settings } from './components/reader/PersonalPages'
 import OceanBackground from './components/reader/OceanBackground'
+import ScenicBackground from './components/reader/ScenicBackground'
 
 export default function App() {
   const { page, navigate, back } = usePage()
@@ -31,12 +32,18 @@ export default function App() {
       night: '#202b30',
     } as const
     const inReader = page.name === 'reader'
+    const ambienceChrome = {
+      sky: '#9ccfe5',
+      ocean: '#143f55',
+      shanhai: '#78989a',
+    } as const
+    const previewAmbience =
+      page.name === 'home' || page.name === 'settings'
+        ? settings.ambience
+        : 'sky'
     const color = inReader
       ? readerSurfaces[settings.theme]
-      : (page.name === 'home' || page.name === 'settings') &&
-          settings.ambience === 'ocean'
-        ? '#143f55'
-        : '#dfe7e6'
+      : ambienceChrome[previewAmbience]
     document
       .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute('content', color)
@@ -161,25 +168,26 @@ export default function App() {
         )
       ) : (
         <div
-          className={`reading-space ${settings.motion ? '' : 'motion-paused'} ${
-            (page.name === 'home' || page.name === 'settings') &&
-            settings.ambience === 'ocean'
-              ? 'ambience-ocean'
-              : ''
+          className={`reading-space ${settings.motion ? '' : 'motion-paused'} ambience-${
+            page.name === 'home' || page.name === 'settings'
+              ? settings.ambience
+              : 'sky'
           }`}
         >
-          {(page.name === 'home' || page.name === 'settings') &&
-          settings.ambience === 'ocean' ? (
+          {(page.name === 'home' || page.name === 'settings'
+            ? settings.ambience
+            : 'sky') === 'ocean' ? (
             <OceanBackground motion={settings.motion} variant="space" />
           ) : (
-            <div className="sky" aria-hidden="true">
-              <div className="sky-light" />
-              <div className="cloud cloud-one" />
-              <div className="cloud cloud-two" />
-              <div className="sky-distance" />
-              <div className="sky-horizon" />
-              <span className="distant-leaf">✧</span>
-            </div>
+            <ScenicBackground
+              scene={
+                (page.name === 'home' || page.name === 'settings'
+                  ? settings.ambience
+                  : 'sky') as 'sky' | 'shanhai'
+              }
+              motion={settings.motion}
+              variant="space"
+            />
           )}
           <div className="space-content">
             {page.name === 'home' && (
