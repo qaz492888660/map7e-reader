@@ -4,12 +4,14 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    video: '/ambience/sky.mp4?v=anime-scene-3',
-    poster: '/ambience/sky.webp?v=anime-scene-3',
+    poster: '/ambience/sky.webp?v=anime-scene-4',
+    motionVideo:
+      'https://videos.pexels.com/video-files/5084245/5084245-uhd_3840_2160_30fps.mp4',
   },
   shanhai: {
-    video: '/ambience/shanhai.mp4?v=anime-scene-3',
-    poster: '/ambience/shanhai.webp?v=anime-scene-3',
+    poster: '/ambience/shanhai.webp?v=anime-scene-4',
+    motionVideo:
+      'https://videos.pexels.com/video-files/5701094/5701094-uhd_3238_2160_25fps.mp4',
   },
 } as const
 
@@ -68,28 +70,27 @@ export default function ScenicBackground({
       data-animated={animate ? 'true' : 'false'}
       aria-hidden="true"
     >
-      {animate ? (
+      <div
+        className="scenic-poster"
+        style={{ backgroundImage: `url("${source.poster}")` }}
+      />
+      {animate && (
         <video
           ref={videoRef}
-          key={scene}
-          className="scenic-video"
-          src={source.video}
+          key={source.motionVideo}
+          className="scenic-motion-video"
+          src={source.motionVideo}
           autoPlay
           muted
           loop
           playsInline
           preload="auto"
           tabIndex={-1}
-          poster={source.poster}
           disablePictureInPicture
           onLoadedData={(event) => {
+            event.currentTarget.playbackRate = scene === 'sky' ? 1.15 : 1.3
             void event.currentTarget.play().catch(() => {})
           }}
-        />
-      ) : (
-        <div
-          className="scenic-poster"
-          style={{ backgroundImage: `url("${source.poster}")` }}
         />
       )}
       <div className="scenic-tint" />
