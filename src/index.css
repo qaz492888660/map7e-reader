@@ -2064,3 +2064,137 @@ h2 {
 .reader.ambience-ocean .pagination-notice {
   z-index: 2;
 }
+
+
+/* Sky ambience refresh: morning cloud sea; Ocean mode intentionally untouched. */
+.reading-space:not(.ambience-ocean) .sky {
+  background:
+    radial-gradient(circle at 78% 12%, #fff7d6a6 0 3%, #fff0bd55 13%, transparent 30%),
+    radial-gradient(ellipse at 12% 78%, #d5e4e2a6, transparent 48%),
+    linear-gradient(180deg, #c8dbe4 0%, #dce8e9 40%, #eef0e8 72%, #f3ece0 100%);
+}
+.reading-space:not(.ambience-ocean) .sky::before {
+  content: '';
+  position: absolute;
+  width: 68vw;
+  height: 68vw;
+  max-width: 430px;
+  max-height: 430px;
+  top: -18vw;
+  right: -23vw;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fffbed96 0%, #ffe7a94a 34%, transparent 70%);
+  opacity: 0.9;
+}
+.reading-space:not(.ambience-ocean) .sky::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 14% 21%, #ffffffb3 0 1px, transparent 1.8px),
+    radial-gradient(circle at 72% 31%, #fff9e09c 0 1px, transparent 1.7px),
+    radial-gradient(circle at 84% 58%, #ffffff80 0 1px, transparent 1.6px),
+    radial-gradient(circle at 31% 69%, #ffffff70 0 1px, transparent 1.6px);
+  opacity: 0.52;
+}
+.reading-space:not(.ambience-ocean) .sky-light {
+  width: 112%;
+  height: 58%;
+  right: -34%;
+  top: -18%;
+  background:
+    radial-gradient(ellipse at 53% 35%, #fffaf0b8, #ffe7af52 28%, transparent 66%);
+}
+.reading-space:not(.ambience-ocean) .cloud {
+  width: 132%;
+  height: 300px;
+  border-radius: 46% 54% 49% 51% / 56% 45% 55% 44%;
+  background:
+    radial-gradient(ellipse at 12% 62%, #ffffff6e 0 22%, transparent 47%),
+    radial-gradient(ellipse at 34% 45%, #fffefbd1 0 24%, transparent 48%),
+    radial-gradient(ellipse at 57% 55%, #ffffffc4 0 27%, transparent 52%),
+    radial-gradient(ellipse at 79% 42%, #fffdf4a8 0 21%, transparent 47%),
+    radial-gradient(ellipse at 94% 64%, #ffffff78 0 18%, transparent 43%);
+}
+.reading-space:not(.ambience-ocean) .cloud-one {
+  top: 5%;
+  left: -48%;
+  height: 330px;
+  opacity: 0.82;
+  transform: rotate(-4deg) translate3d(0, 0, 0);
+}
+.reading-space:not(.ambience-ocean) .cloud-two {
+  top: 43%;
+  right: -54%;
+  height: 285px;
+  opacity: 0.56;
+  transform: rotate(5deg) translate3d(0, 0, 0);
+}
+.reading-space:not(.ambience-ocean) .sky-distance {
+  bottom: 12%;
+  left: -22%;
+  width: 144%;
+  height: 31%;
+  border-radius: 50%;
+  transform: rotate(-7deg);
+  background:
+    radial-gradient(ellipse at 26% 80%, #adc8c571, transparent 45%),
+    radial-gradient(ellipse at 66% 72%, #aebfbc3d, transparent 49%),
+    linear-gradient(180deg, #bfd2cf1c, transparent 62%);
+  border-top-color: #ffffff70;
+}
+.reading-space:not(.ambience-ocean) .sky-horizon {
+  height: 39%;
+  background:
+    radial-gradient(ellipse at 18% 82%, #f5e3c6a6, transparent 48%),
+    radial-gradient(ellipse at 72% 100%, #d6dfd9a6, transparent 55%),
+    linear-gradient(0deg, #ede9dfd9 0%, #e8ece7a8 34%, transparent 84%);
+}
+.reading-space:not(.ambience-ocean) .distant-leaf {
+  top: 27%;
+  right: 12%;
+  color: #a68a5961;
+  font-size: 29px;
+  text-shadow: 0 0 18px #fff3caa6;
+}
+.reading-space:not(.ambience-ocean) .home .greeting h1 {
+  color: #36555d;
+  text-shadow: 0 1px 0 #ffffff9e, 0 10px 26px #6d89921a;
+}
+.reading-space:not(.ambience-ocean) .home .greeting h1 span {
+  color: #b28e62;
+}
+.reading-space:not(.ambience-ocean) .home .bubble {
+  background:
+    radial-gradient(circle at 28% 20%, #ffffffd9, transparent 38%),
+    linear-gradient(145deg, #ffffff9e, #f4fbf547 58%, #cadbd51f);
+  border-color: #ffffffc7;
+  box-shadow:
+    inset 1px 2px 9px #ffffffa8,
+    inset -3px -5px 12px #bfd2cf21,
+    0 16px 34px #476d7914;
+  -webkit-backdrop-filter: blur(8px) saturate(108%);
+  backdrop-filter: blur(8px) saturate(108%);
+}
+.reading-space:not(.ambience-ocean) .home .bubble-library {
+  background:
+    radial-gradient(circle at 30% 18%, #fffdf2c9, transparent 40%),
+    linear-gradient(145deg, #f9fff3a8, #d9e9dc32);
+}
+.reading-space:not(.ambience-ocean) .home .home-footer {
+  color: #758888;
+}
+@media (max-width: 430px) {
+  .reading-space:not(.ambience-ocean) .sky::before {
+    width: 78vw;
+    height: 78vw;
+    top: -22vw;
+    right: -31vw;
+  }
+  .reading-space:not(.ambience-ocean) .cloud-one {
+    left: -58%;
+  }
+  .reading-space:not(.ambience-ocean) .cloud-two {
+    right: -62%;
+  }
+}
