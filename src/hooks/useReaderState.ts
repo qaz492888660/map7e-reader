@@ -67,7 +67,7 @@ function readSaved() {
         script: ['original', 'simplified', 'traditional'].includes(s.script)
           ? (s.script as ReaderSettings['script'])
           : defaults.script,
-        ambience: ['sky', 'ocean'].includes(s.ambience)
+        ambience: ['sky', 'ocean', 'shanhai'].includes(s.ambience)
           ? (s.ambience as ReaderSettings['ambience'])
           : defaults.ambience,
         motion: typeof s.motion === 'boolean' ? s.motion : true,
