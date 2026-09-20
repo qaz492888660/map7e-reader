@@ -22,6 +22,7 @@ import Sheet from './Sheet'
 import Icon from './Icon'
 import { convertText } from '../../services/textScript'
 import OceanBackground from './OceanBackground'
+import ScenicBackground from './ScenicBackground'
 interface Props {
   book: Book
   content: BookContent
@@ -168,8 +169,14 @@ export default function Reader({
         } as CSSProperties
       }
     >
-      {settings.ambience === 'ocean' && (
+      {settings.ambience === 'ocean' ? (
         <OceanBackground motion={settings.motion} variant="reader" />
+      ) : (
+        <ScenicBackground
+          scene={settings.ambience}
+          motion={settings.motion}
+          variant="reader"
+        />
       )}
       <div
         className={`reader-stage font-${settings.fontFamily}`}
@@ -447,13 +454,13 @@ export function AmbienceOptions({
 }) {
   return (
     <div className="option-row ambience-options">
-      {(['sky', 'ocean'] as const).map((ambience, i) => (
+      {(['sky', 'ocean', 'shanhai'] as const).map((ambience, i) => (
         <button
           key={ambience}
           aria-pressed={settings.ambience === ambience}
           onClick={() => onSettings({ ...settings, ambience })}
         >
-          {['天空', '海洋'][i]}
+          {['天空', '海洋', '山海'][i]}
         </button>
       ))}
     </div>
