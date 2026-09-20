@@ -5,12 +5,12 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 const SCENES = {
   sky: {
     video:
-      'https://assets.mixkit.co/videos/preview/mixkit-blue-sky-seen-directly-with-some-clouds-moving-21574-large.mp4',
+      'https://videos.pexels.com/video-files/855785/855785-hd_1920_1080_24fps.mp4',
     poster: '/ambience/sky.svg',
   },
   shanhai: {
     video:
-      'https://assets.mixkit.co/videos/preview/mixkit-sunset-over-the-sea-4318-large.mp4',
+      'https://videos.pexels.com/video-files/855617/855617-uhd_3840_2160_25fps.mp4',
     poster: '/ambience/shanhai.svg',
   },
 } as const
