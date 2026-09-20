@@ -1,30 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 2200" preserveAspectRatio="xMidYMid slice">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 2560">
 <defs>
-  <linearGradient id="air" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#759aa6"/>
-    <stop offset=".34" stop-color="#9eb9bb"/>
-    <stop offset=".66" stop-color="#d6dfd8"/>
-    <stop offset="1" stop-color="#b8cac3"/>
-  </linearGradient>
-  <radialGradient id="sun" cx=".5" cy=".5" r=".5">
-    <stop offset="0" stop-color="#fff2d1" stop-opacity=".95"/>
-    <stop offset=".3" stop-color="#f5d8a1" stop-opacity=".48"/>
-    <stop offset="1" stop-color="#f5d8a1" stop-opacity="0"/>
-  </radialGradient>
-  <linearGradient id="water" x1="0" y1="0" x2="0" y2="1">
-    <stop offset="0" stop-color="#8ba8a5"/>
-    <stop offset="1" stop-color="#5f8588"/>
-  </linearGradient>
+ <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#91cbd7"/><stop offset=".48" stop-color="#d9e8df"/><stop offset="1" stop-color="#e7d6b9"/></linearGradient>
+ <linearGradient id="sea" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#8fb9b8"/><stop offset="1" stop-color="#416e72"/></linearGradient>
+ <radialGradient id="sun"><stop stop-color="#fff5c9"/><stop offset="1" stop-color="#f2c982" stop-opacity="0"/></radialGradient>
 </defs>
-<rect width="1440" height="2200" fill="url(#air)"/>
-<circle cx="1060" cy="390" r="250" fill="url(#sun)"/>
-<path d="M0 1180 L150 980 L280 1080 L430 790 L610 1030 L780 760 L980 1110 L1170 870 L1440 1140 L1440 1570 L0 1570 Z" fill="#637b78" opacity=".34"/>
-<path d="M0 1290 L220 1060 L390 1190 L590 920 L820 1220 L1030 980 L1240 1190 L1440 1040 L1440 1600 L0 1600 Z" fill="#536e6d" opacity=".44"/>
-<path d="M0 1390 C260 1325 410 1400 640 1435 C910 1475 1120 1375 1440 1340 L1440 1680 L0 1680 Z" fill="#eff4ec" opacity=".58"/>
-<path d="M0 1495 C250 1420 430 1520 670 1545 C940 1575 1120 1480 1440 1455 L1440 1770 L0 1770 Z" fill="#f7f4e9" opacity=".52"/>
-<rect y="1580" width="1440" height="620" fill="url(#water)"/>
-<path d="M0 1670 C220 1635 440 1700 680 1670 C900 1643 1170 1640 1440 1690" fill="none" stroke="#e6efea" stroke-opacity=".44" stroke-width="9"/>
-<path d="M0 1770 C260 1735 520 1800 760 1760 C1010 1720 1230 1750 1440 1795" fill="none" stroke="#dce9e5" stroke-opacity=".32" stroke-width="7"/>
-<path d="M0 1910 C230 1870 500 1940 770 1900 C1030 1865 1260 1910 1440 1935" fill="none" stroke="#e4ece8" stroke-opacity=".25" stroke-width="6"/>
-<path d="M1000 630 C1080 690 1130 750 1190 845" fill="none" stroke="#fff2d1" stroke-opacity=".13" stroke-width="55" stroke-linecap="round"/>
+<rect width="1440" height="2560" fill="url(#sky)"/>
+<circle cx="1080" cy="560" r="300" fill="url(#sun)"/>
+<path d="M0 1410 210 1120 380 1270 570 930 770 1240 970 1010 1190 1300 1440 1080V1780H0Z" fill="#759a94" opacity=".55"/>
+<path d="M0 1580 240 1330 430 1510 690 1160 900 1480 1160 1250 1440 1510V1900H0Z" fill="#557d78" opacity=".8"/>
+<path d="M0 1780 280 1530 500 1700 760 1450 980 1700 1210 1490 1440 1690V2040H0Z" fill="#365f5e"/>
+<g fill="#eef2e8" opacity=".76">
+ <ellipse cx="280" cy="1330" rx="430" ry="110"/><ellipse cx="720" cy="1430" rx="520" ry="120"/><ellipse cx="1230" cy="1320" rx="420" ry="105"/>
+</g>
+<path d="M0 1880 C260 1810 440 1930 690 1860s500-30 750 50v650H0Z" fill="url(#sea)"/>
+<g fill="none" stroke="#d9ebe4" opacity=".45" stroke-width="8">
+ <path d="M80 2080c250-55 460 60 720 0s410-30 570 10"/><path d="M20 2250c260-50 500 55 760 0s430-25 650 20"/><path d="M110 2410c220-40 440 45 680 0s390-20 560 15"/>
+</g>
 </svg>
