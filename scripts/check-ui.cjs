@@ -30,7 +30,7 @@ async function launch(
   console.on('jsdomError', (error) => errors.push(error.message))
   console.on('error', (...args) => errors.push(args.join(' ')))
   const dom = new JSDOM(
-    '<!doctype html><html><head><meta name="theme-color" content="#dfe7e6"></head><body><div id="root"></div></body></html>',
+    '<!doctype html><html><head><meta name="theme-color" content="#9ccfe5"></head><body><div id="root"></div></body></html>',
     {
       url: `https://reader.example/${hash}`,
       runScripts: 'outside-only',
@@ -186,7 +186,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Home has only four bubble entries and no carousel',
     t.d.querySelectorAll('.bubble').length === 4 &&
       !t.d.querySelector('.book-carousel') &&
-      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6' &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5' &&
       !t.d.documentElement.dataset.readerSurface,
   )
   await click(t, '我的书库')
@@ -261,7 +261,23 @@ async function swipe(t, dx, dy = 0, cancel = false) {
         .includes('blog.map7e.com/videos/underwater.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
+  await click(t, '山海')
+  check(
+    'Reader shanhai ambience previews immediately without replacing reading content',
+    !!t.d.querySelector('.reader.ambience-shanhai') &&
+      !!t.d.querySelector('.scenic-reader.scenic-shanhai') &&
+      t.d
+        .querySelector('.scenic-reader.scenic-shanhai')
+        .getAttribute('data-animated') === 'true' &&
+      !!t.d.querySelector('.reader-content'),
+  )
   await click(t, '天空')
+  check(
+    'Reader sky ambience previews immediately with the illustrated scenic layer',
+    !!t.d.querySelector('.reader.ambience-sky') &&
+      !!t.d.querySelector('.scenic-reader.scenic-sky') &&
+      !!t.d.querySelector('.reader-content'),
+  )
   await click(t, '关闭面板')
   check(
     'Night theme changes and persists',
@@ -287,7 +303,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader back returns to detail and restores the sky browser color',
     !!t.d.querySelector('.detail') &&
-      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6' &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5' &&
       !t.d.documentElement.dataset.readerSurface,
   )
   await go(t, '#/history')
@@ -336,9 +352,20 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Settings previews sky ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
-      !t.d.querySelector('.reading-space.ambience-ocean') &&
-      !!t.d.querySelector('.sky') &&
-      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6',
+      !!t.d.querySelector('.reading-space.ambience-sky') &&
+      !!t.d.querySelector('.scenic-space.scenic-sky') &&
+      t.d
+        .querySelector('.scenic-space.scenic-sky')
+        .getAttribute('data-animated') === 'true' &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
+  )
+  await click(t, '山海')
+  check(
+    'Settings previews shanhai ambience immediately without leaving the page',
+    !!t.d.querySelector('.personal-page') &&
+      !!t.d.querySelector('.reading-space.ambience-shanhai') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
   await click(t, '海洋')
   await go(t, '#/home')
@@ -355,6 +382,16 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       t.d.body.textContent.includes('A ROOM BENEATH THE WAVES'),
   )
   await go(t, '#/settings')
+  await click(t, '山海')
+  await go(t, '#/home')
+  check(
+    'Home shanhai ambience uses the illustrated animated scene and matching label',
+    !!t.d.querySelector('.reading-space.ambience-shanhai') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#78989a' &&
+      t.d.body.textContent.includes('A ROOM BETWEEN MOUNTAINS AND SEA'),
+  )
+  await go(t, '#/settings')
   await click(t, '天空')
   check(
     'Ambience choice persists and can return to sky mode',
@@ -363,7 +400,10 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   await click(t, '云层动态')
   check(
     'Motion switch stops ambient animation',
-    !!t.d.querySelector('.motion-paused'),
+    !!t.d.querySelector('.motion-paused') &&
+      t.d
+        .querySelector('.scenic-space.scenic-sky')
+        .getAttribute('data-animated') === 'false',
   )
   check(
     'Main interaction flow has no runtime errors',
