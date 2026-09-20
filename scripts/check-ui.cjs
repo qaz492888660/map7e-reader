@@ -325,6 +325,22 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   )
   await go(t, '#/settings')
   await click(t, '海洋')
+  check(
+    'Settings previews ocean ambience immediately without leaving the page',
+    !!t.d.querySelector('.personal-page') &&
+      !!t.d.querySelector('.reading-space.ambience-ocean') &&
+      !!t.d.querySelector('.ocean-space video') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#143f55',
+  )
+  await click(t, '天空')
+  check(
+    'Settings previews sky ambience immediately without leaving the page',
+    !!t.d.querySelector('.personal-page') &&
+      !t.d.querySelector('.reading-space.ambience-ocean') &&
+      !!t.d.querySelector('.sky') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#dfe7e6',
+  )
+  await click(t, '海洋')
   await go(t, '#/home')
   const homeOceanVideo = t.d.querySelector('.ocean-space video')
   check(
