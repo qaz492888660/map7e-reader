@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type SyntheticEvent } from 'react'
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
@@ -71,7 +71,7 @@ export default function ScenicBackground({
   }, [animate])
 
   const startVideo = (
-    event: React.SyntheticEvent<HTMLVideoElement>,
+    event: SyntheticEvent<HTMLVideoElement>,
     layer: 'base' | 'motion',
   ) => {
     const video = event.currentTarget
