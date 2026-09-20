@@ -265,22 +265,22 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader shanhai ambience previews immediately without replacing reading content',
     !!t.d.querySelector('.reader.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-reader.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-reader.scenic-shanhai .scenic-motion-video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-shanhai video')
+        .querySelector('.scenic-reader.scenic-shanhai .scenic-motion-video')
         .getAttribute('src')
-        .includes('/ambience/shanhai.mp4') &&
+        .includes('5701094-uhd_3238_2160_25fps.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '天空')
   check(
     'Reader sky ambience previews immediately with the illustrated scenic layer',
     !!t.d.querySelector('.reader.ambience-sky') &&
-      !!t.d.querySelector('.scenic-reader.scenic-sky video') &&
+      !!t.d.querySelector('.scenic-reader.scenic-sky .scenic-motion-video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-sky video')
+        .querySelector('.scenic-reader.scenic-sky .scenic-motion-video')
         .getAttribute('src')
-        .includes('/ambience/sky.mp4') &&
+        .includes('5084245-uhd_3840_2160_30fps.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '关闭面板')
@@ -358,11 +358,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews sky ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-sky') &&
-      !!t.d.querySelector('.scenic-space.scenic-sky video') &&
+      !!t.d.querySelector('.scenic-space.scenic-sky .scenic-motion-video') &&
       t.d
-        .querySelector('.scenic-space.scenic-sky video')
+        .querySelector('.scenic-space.scenic-sky .scenic-motion-video')
         .getAttribute('src')
-        .includes('/ambience/sky.mp4') &&
+        .includes('5084245-uhd_3840_2160_30fps.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
   )
   await click(t, '山海')
@@ -370,11 +370,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews shanhai ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai .scenic-motion-video') &&
       t.d
-        .querySelector('.scenic-space.scenic-shanhai video')
+        .querySelector('.scenic-space.scenic-shanhai .scenic-motion-video')
         .getAttribute('src')
-        .includes('/ambience/shanhai.mp4') &&
+        .includes('5701094-uhd_3238_2160_25fps.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
   await click(t, '海洋')
@@ -397,7 +397,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Home shanhai ambience uses the illustrated animated scene and matching label',
     !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai .scenic-motion-video') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a' &&
       t.d.body.textContent.includes('A ROOM BETWEEN MOUNTAINS AND SEA'),
   )
@@ -998,4 +998,14 @@ async function swipe(t, dx, dy = 0, cancel = false) {
 })().catch((error) => {
   console.error(error)
   process.exitCode = 1
+})
+
+
+test('scenic motion layers use real moving footage rather than near-static local loops', () => {
+  const source = read('src/components/reader/ScenicBackground.tsx')
+  assert.match(source, /5084245-uhd_3840_2160_30fps\.mp4/)
+  assert.match(source, /5701094-uhd_3238_2160_25fps\.mp4/)
+  assert.match(source, /className="scenic-motion-video"/)
+  assert.doesNotMatch(source, /\/ambience\/sky\.mp4/)
+  assert.doesNotMatch(source, /\/ambience\/shanhai\.mp4/)
 })
