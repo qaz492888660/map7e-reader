@@ -265,7 +265,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader shanhai ambience previews immediately without replacing reading content',
     !!t.d.querySelector('.reader.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-reader.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-reader.scenic-shanhai canvas') &&
       t.d
         .querySelector('.scenic-reader.scenic-shanhai source')
         .getAttribute('src')
@@ -276,7 +276,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader sky ambience previews immediately with the illustrated scenic layer',
     !!t.d.querySelector('.reader.ambience-sky') &&
-      !!t.d.querySelector('.scenic-reader.scenic-sky video') &&
+      !!t.d.querySelector('.scenic-reader.scenic-sky canvas') &&
       t.d
         .querySelector('.scenic-reader.scenic-sky source')
         .getAttribute('src')
@@ -358,7 +358,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews sky ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-sky') &&
-      !!t.d.querySelector('.scenic-space.scenic-sky video') &&
+      !!t.d.querySelector('.scenic-space.scenic-sky canvas') &&
       t.d
         .querySelector('.scenic-space.scenic-sky source')
         .getAttribute('src')
@@ -370,7 +370,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews shanhai ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai canvas') &&
       t.d
         .querySelector('.scenic-space.scenic-shanhai source')
         .getAttribute('src')
@@ -397,7 +397,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Home shanhai ambience uses the illustrated animated scene and matching label',
     !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai canvas') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a' &&
       t.d.body.textContent.includes('A ROOM BETWEEN MOUNTAINS AND SEA'),
   )
@@ -1001,13 +1001,6 @@ async function swipe(t, dx, dy = 0, cancel = false) {
 })
 
 
-test('scenic ambience scene identity stays isolated', () => {
-  const source = read('src/components/reader/ScenicBackground.tsx')
-  assert.match(source, /key=\{scene\}/)
-  assert.match(source, /data-scene=\{scene\}/)
-  assert.doesNotMatch(source, /scenic-anime-art/)
-  assert.doesNotMatch(source, /videoFailed/)
-})
 
 test('settings remounts scenic background when ambience changes', () => {
   const source = read('src/App.tsx')
@@ -1015,4 +1008,12 @@ test('settings remounts scenic background when ambience changes', () => {
     source,
     /key=\{page\.name === 'home' \|\| page\.name === 'settings' \? settings\.ambience : 'sky'\}/,
   )
+})
+
+test('scenic ambience uses isolated generated animation without external video fallbacks', () => {
+  const source = read('src/components/reader/ScenicBackground.tsx')
+  assert.match(source, /<canvas ref=\{canvas\} className="scenic-canvas"\/>/)
+  assert.match(source, /scene==='sky'\?drawSky/)
+  assert.match(source, /drawShanhai/)
+  assert.doesNotMatch(source, /pexels|mixkit|pixabay|<video/)
 })
