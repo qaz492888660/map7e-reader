@@ -4,10 +4,9 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    poster: '/ambience/sky.webp?v=anime-scene-5',
-    baseVideo: '/ambience/sky.mp4?v=anime-scene-5',
-    motionVideo:
-      'https://videos.pexels.com/video-files/5084245/5084245-uhd_3840_2160_30fps.mp4',
+    poster: null,
+    baseVideo: '/ambience/sky.mp4?v=anime-scene-6',
+    motionVideo: null,
   },
   shanhai: {
     poster: '/ambience/shanhai.webp?v=anime-scene-5',
@@ -94,10 +93,12 @@ export default function ScenicBackground({
       data-animated={animate ? 'true' : 'false'}
       aria-hidden="true"
     >
-      <div
-        className="scenic-poster"
-        style={{ backgroundImage: `url("${source.poster}")` }}
-      />
+      {source.poster && (
+        <div
+          className="scenic-poster"
+          style={{ backgroundImage: `url("${source.poster}")` }}
+        />
+      )}
       {animate && (
         <>
           <video
@@ -115,21 +116,23 @@ export default function ScenicBackground({
             onLoadedData={(event) => startVideo(event, 'base')}
             onCanPlay={(event) => startVideo(event, 'base')}
           />
-          <video
-            ref={motionVideoRef}
-            key={`${scene}-motion`}
-            className="scenic-motion-video"
-            src={source.motionVideo}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            tabIndex={-1}
-            disablePictureInPicture
-            onLoadedData={(event) => startVideo(event, 'motion')}
-            onCanPlay={(event) => startVideo(event, 'motion')}
-          />
+          {source.motionVideo && (
+            <video
+              ref={motionVideoRef}
+              key={`${scene}-motion`}
+              className="scenic-motion-video"
+              src={source.motionVideo}
+              autoPlay
+              muted
+              loop
+              playsInline
+              preload="auto"
+              tabIndex={-1}
+              disablePictureInPicture
+              onLoadedData={(event) => startVideo(event, 'motion')}
+              onCanPlay={(event) => startVideo(event, 'motion')}
+            />
+          )}
         </>
       )}
       <div className="scenic-tint" />
