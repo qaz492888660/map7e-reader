@@ -2107,6 +2107,32 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   background-size: cover;
   background-repeat: no-repeat;
 }
+.scenic-anime-art {
+  position: absolute;
+  inset: 0;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  pointer-events: none;
+}
+.scenic-space .scenic-video {
+  filter: saturate(1.12) contrast(.94) brightness(1.06);
+}
+.scenic-space.scenic-sky .scenic-anime-art {
+  opacity: .46;
+  mix-blend-mode: soft-light;
+}
+.scenic-space.scenic-shanhai .scenic-anime-art {
+  opacity: .72;
+  mix-blend-mode: normal;
+}
+.scenic-space.scenic-shanhai .scenic-video {
+  opacity: .68;
+  filter: saturate(.82) contrast(.9) brightness(.94);
+}
+.scenic-reader .scenic-anime-art {
+  opacity: .36;
+}
 .scenic-tint {
   position: absolute;
   inset: 0;
