@@ -184,6 +184,7 @@ export default function App() {
             <OceanBackground motion={settings.motion} variant="space" />
           ) : (
             <ScenicBackground
+              key={page.name === 'home' || page.name === 'settings' ? settings.ambience : 'sky'}
               scene={
                 (page.name === 'home' || page.name === 'settings'
                   ? settings.ambience
