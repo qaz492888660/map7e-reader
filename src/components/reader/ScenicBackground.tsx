@@ -4,12 +4,12 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    video: '/ambience/sky.mp4',
-    poster: '/ambience/sky.webp',
+    video: '/ambience/sky.mp4?v=anime-scene-2',
+    poster: '/ambience/sky.webp?v=anime-scene-2',
   },
   shanhai: {
-    video: '/ambience/shanhai.mp4',
-    poster: '/ambience/shanhai.webp',
+    video: '/ambience/shanhai.mp4?v=anime-scene-2',
+    poster: '/ambience/shanhai.webp?v=anime-scene-2',
   },
 } as const
 
