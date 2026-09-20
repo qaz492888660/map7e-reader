@@ -29,7 +29,12 @@ export default function Home({
       </header>
       <section className="greeting">
         <div className="eyebrow">
-          <span /> {ambience === 'ocean' ? 'A ROOM BENEATH THE WAVES' : 'A ROOM ABOVE THE CLOUDS'}
+          <span />{' '}
+          {ambience === 'ocean'
+            ? 'A ROOM BENEATH THE WAVES'
+            : ambience === 'shanhai'
+              ? 'A ROOM BETWEEN MOUNTAINS AND SEA'
+              : 'A ROOM ABOVE THE CLOUDS'}
         </div>
         <h1 tabIndex={-1}>
           你好，枫<span>。</span>
