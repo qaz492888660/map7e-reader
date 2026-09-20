@@ -265,17 +265,22 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Reader shanhai ambience previews immediately without replacing reading content',
     !!t.d.querySelector('.reader.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-reader.scenic-shanhai') &&
+      !!t.d.querySelector('.scenic-reader.scenic-shanhai video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-shanhai')
-        .getAttribute('data-animated') === 'true' &&
+        .querySelector('.scenic-reader.scenic-shanhai source')
+        .getAttribute('src')
+        .includes('mixkit-sunset-over-the-sea-4318-large.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '天空')
   check(
     'Reader sky ambience previews immediately with the illustrated scenic layer',
     !!t.d.querySelector('.reader.ambience-sky') &&
-      !!t.d.querySelector('.scenic-reader.scenic-sky') &&
+      !!t.d.querySelector('.scenic-reader.scenic-sky video') &&
+      t.d
+        .querySelector('.scenic-reader.scenic-sky source')
+        .getAttribute('src')
+        .includes('mixkit-blue-sky-seen-directly-with-some-clouds-moving-21574-large.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
   await click(t, '关闭面板')
@@ -353,10 +358,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews sky ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-sky') &&
-      !!t.d.querySelector('.scenic-space.scenic-sky') &&
+      !!t.d.querySelector('.scenic-space.scenic-sky video') &&
       t.d
-        .querySelector('.scenic-space.scenic-sky')
-        .getAttribute('data-animated') === 'true' &&
+        .querySelector('.scenic-space.scenic-sky source')
+        .getAttribute('src')
+        .includes('mixkit-blue-sky-seen-directly-with-some-clouds-moving-21574-large.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
   )
   await click(t, '山海')
@@ -364,7 +370,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     'Settings previews shanhai ambience immediately without leaving the page',
     !!t.d.querySelector('.personal-page') &&
       !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
+      t.d
+        .querySelector('.scenic-space.scenic-shanhai source')
+        .getAttribute('src')
+        .includes('mixkit-sunset-over-the-sea-4318-large.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
   await click(t, '海洋')
@@ -387,7 +397,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   check(
     'Home shanhai ambience uses the illustrated animated scene and matching label',
     !!t.d.querySelector('.reading-space.ambience-shanhai') &&
-      !!t.d.querySelector('.scenic-space.scenic-shanhai') &&
+      !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a' &&
       t.d.body.textContent.includes('A ROOM BETWEEN MOUNTAINS AND SEA'),
   )
