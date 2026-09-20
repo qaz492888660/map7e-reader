@@ -2065,152 +2065,346 @@ h2 {
   z-index: 2;
 }
 
-
-/* Sky ambience refresh: morning cloud sea; Ocean mode intentionally untouched. */
-.reading-space:not(.ambience-ocean) {
-  background:
-    linear-gradient(180deg, #8cc6e3 0%, #bfe0ee 35%, #e7f1ef 67%, #f4eadc 100%);
+/* Scenic ambience: illustrated sky + shanhai with restrained motion.
+   Ocean rules above remain unchanged. */
+html[data-ambience='sky'] {
+  --app-background: #9ccfe5;
 }
-.reading-space:not(.ambience-ocean) .sky {
-  background:
-    radial-gradient(circle at 82% 13%, #fffef1 0 5%, #ffe8a98a 13%, transparent 30%),
-    linear-gradient(180deg, #79bce0 0%, #a9d6ea 34%, #d9ecef 64%, #f2eadf 100%);
+html[data-ambience='ocean'] {
+  --app-background: #143f55;
 }
-.reading-space:not(.ambience-ocean) .sky::before {
-  content: '';
-  position: absolute;
-  width: min(62vw, 390px);
-  aspect-ratio: 1;
-  top: -15vw;
-  right: -18vw;
-  border-radius: 50%;
-  background: radial-gradient(circle, #fffdf1cc 0 19%, #ffe3a45c 42%, transparent 71%);
-  filter: blur(1px);
+html[data-ambience='shanhai'] {
+  --app-background: #78989a;
 }
-.reading-space:not(.ambience-ocean) .sky::after {
-  content: '';
+.reading-space.ambience-sky {
+  background: #9ccfe5;
+}
+.reading-space.ambience-shanhai {
+  background: #78989a;
+}
+.reading-space .space-content {
+  position: relative;
+  z-index: 1;
+}
+.scenic-ambience {
+  overflow: hidden;
+  pointer-events: none;
+  background: #9ccfe5;
+}
+.scenic-space {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+}
+.scenic-reader {
   position: absolute;
   inset: 0;
+  z-index: 0;
+}
+.scenic-art,
+.scenic-far,
+.scenic-near,
+.scenic-light,
+.scenic-tint {
+  position: absolute;
+  inset: -4%;
+  width: 108%;
+  height: 108%;
+}
+.scenic-art {
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  transform: scale(1.035);
+  will-change: transform;
+}
+.scenic-sky {
+  background: #8fc7e2;
+}
+.scenic-sky .scenic-art {
+  background-image: url('/ambience/sky.svg');
+}
+.scenic-shanhai {
+  background: #78989a;
+}
+.scenic-shanhai .scenic-art {
+  background-image: url('/ambience/shanhai.svg');
+}
+.scenic-light {
+  z-index: 2;
+  mix-blend-mode: screen;
+  opacity: 0.5;
+}
+.scenic-sky .scenic-light {
   background:
-    radial-gradient(ellipse at 18% 86%, #ffffff59 0 8%, transparent 34%),
-    radial-gradient(ellipse at 63% 83%, #ffffff54 0 10%, transparent 38%);
-  opacity: 0.9;
+    radial-gradient(circle at 79% 13%, #fff9d4b8 0 4%, #ffe3aa52 14%, transparent 31%);
 }
-.reading-space:not(.ambience-ocean) .sky-light {
-  width: 112%;
-  height: 60%;
-  right: -30%;
-  top: -20%;
+.scenic-shanhai .scenic-light {
   background:
-    radial-gradient(ellipse at 55% 34%, #fffdf3d6 0 11%, #ffe7b059 31%, transparent 65%);
+    radial-gradient(circle at 74% 19%, #ffe6b166 0 4%, transparent 27%);
+  opacity: 0.42;
 }
-.reading-space:not(.ambience-ocean) .cloud {
-  width: 130%;
-  height: 290px;
-  border-radius: 48% 52% 45% 55% / 57% 48% 52% 43%;
+.scenic-far,
+.scenic-near {
+  z-index: 1;
+  will-change: transform;
+}
+.scenic-sky .scenic-far {
+  inset: 0 -28%;
+  width: 156%;
+  height: 100%;
   background:
-    radial-gradient(ellipse at 9% 63%, #ffffffeb 0 20%, transparent 43%),
-    radial-gradient(ellipse at 28% 43%, #fffef8f2 0 24%, transparent 47%),
-    radial-gradient(ellipse at 49% 59%, #ffffffea 0 28%, transparent 51%),
-    radial-gradient(ellipse at 71% 39%, #fffdf7e6 0 22%, transparent 46%),
-    radial-gradient(ellipse at 91% 61%, #ffffffc9 0 19%, transparent 43%);
-  filter: drop-shadow(0 18px 22px #648da01f);
+    radial-gradient(ellipse at 8% 27%, #ffffffd9 0 8%, transparent 20%),
+    radial-gradient(ellipse at 23% 23%, #fffef6de 0 11%, transparent 25%),
+    radial-gradient(ellipse at 43% 31%, #ffffffd0 0 10%, transparent 24%),
+    radial-gradient(ellipse at 76% 52%, #ffffff9e 0 9%, transparent 23%),
+    radial-gradient(ellipse at 92% 48%, #fffef5c2 0 11%, transparent 25%);
+  opacity: 0.72;
 }
-.reading-space:not(.ambience-ocean) .cloud-one {
-  top: 9%;
-  left: -40%;
-  height: 315px;
-  opacity: 0.94;
-  transform: rotate(-3deg) translate3d(0, 0, 0);
-}
-.reading-space:not(.ambience-ocean) .cloud-two {
-  top: 49%;
-  right: -50%;
-  height: 270px;
-  opacity: 0.76;
-  transform: rotate(4deg) translate3d(0, 0, 0);
-}
-.reading-space:not(.ambience-ocean) .sky-distance {
-  bottom: 12%;
-  left: -20%;
-  width: 142%;
-  height: 30%;
-  border-radius: 50%;
-  transform: rotate(-6deg);
+.scenic-sky .scenic-near {
+  inset: auto -36% -7%;
+  width: 172%;
+  height: 58%;
   background:
-    radial-gradient(ellipse at 23% 81%, #90adb27a, transparent 44%),
-    radial-gradient(ellipse at 65% 74%, #88a9af4d, transparent 49%),
-    linear-gradient(180deg, #b6ced14a, transparent 64%);
-  border-top-color: #ffffff82;
+    radial-gradient(ellipse at 10% 75%, #ffffffcf 0 12%, transparent 29%),
+    radial-gradient(ellipse at 32% 70%, #fffef8e8 0 17%, transparent 33%),
+    radial-gradient(ellipse at 57% 80%, #ffffffd7 0 16%, transparent 32%),
+    radial-gradient(ellipse at 82% 69%, #fffef7dd 0 17%, transparent 33%);
+  opacity: 0.74;
 }
-.reading-space:not(.ambience-ocean) .sky-horizon {
-  height: 38%;
+.scenic-shanhai .scenic-far {
+  inset: 12% -28% auto;
+  width: 156%;
+  height: 46%;
   background:
-    radial-gradient(ellipse at 15% 88%, #f6dfc3bf, transparent 48%),
-    radial-gradient(ellipse at 73% 100%, #d7e2dcb3, transparent 57%),
-    linear-gradient(0deg, #eee7dccc 0%, #e4ece8a6 40%, transparent 88%);
+    radial-gradient(ellipse at 18% 60%, #f7f4eab0 0 12%, transparent 34%),
+    radial-gradient(ellipse at 48% 54%, #e7eee8a8 0 16%, transparent 38%),
+    radial-gradient(ellipse at 80% 64%, #f7f2e8a3 0 14%, transparent 36%);
+  opacity: 0.68;
 }
-.reading-space:not(.ambience-ocean) .distant-leaf {
-  top: 27%;
-  right: 12%;
-  color: #ffffffb8;
-  font-size: 24px;
-  text-shadow: 0 0 16px #fff7cf;
-}
-.reading-space:not(.ambience-ocean) .home .greeting h1 {
-  color: #2f5360;
-  text-shadow: 0 1px 0 #ffffffb5, 0 10px 28px #5b81911f;
-}
-.reading-space:not(.ambience-ocean) .home .greeting h1 span {
-  color: #b88956;
-}
-.reading-space:not(.ambience-ocean) .home .bubble {
+.scenic-shanhai .scenic-near {
+  inset: auto -30% 7%;
+  width: 160%;
+  height: 35%;
   background:
-    radial-gradient(circle at 28% 18%, #ffffffeb, transparent 36%),
-    linear-gradient(145deg, #ffffffaa, #f7fff452 58%, #cfe1dc29);
-  border-color: #ffffffe0;
-  box-shadow:
-    inset 1px 2px 9px #ffffffba,
-    inset -3px -5px 12px #c5d7d22b,
-    0 16px 34px #406a7a18;
-  -webkit-backdrop-filter: blur(8px) saturate(110%);
-  backdrop-filter: blur(8px) saturate(110%);
+    repeating-linear-gradient(
+      176deg,
+      transparent 0 16px,
+      #e8f0eb30 17px 19px,
+      transparent 20px 38px
+    ),
+    radial-gradient(ellipse at 35% 50%, #dce8e15c 0 15%, transparent 46%),
+    radial-gradient(ellipse at 74% 58%, #f2eee36b 0 12%, transparent 44%);
+  opacity: 0.65;
 }
-.reading-space:not(.ambience-ocean) .home .bubble-library {
+.scenic-tint {
+  z-index: 3;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.scenic-space.scenic-sky .scenic-tint {
   background:
-    radial-gradient(circle at 30% 17%, #fffef4dc, transparent 39%),
-    linear-gradient(145deg, #fbfff4b3, #dbeade38);
+    linear-gradient(180deg, #5daed51c 0%, transparent 36%, #f7eee148 100%),
+    radial-gradient(circle at 50% 40%, transparent 26%, #4d829513 100%);
 }
-.reading-space.ambience-ocean .personal-page {
-  color: #edf7f8;
-  text-shadow: 0 1px 10px #082b3a2b;
+.scenic-space.scenic-shanhai .scenic-tint {
+  background:
+    linear-gradient(180deg, #355e6924 0%, transparent 38%, #345f6338 100%),
+    radial-gradient(circle at 50% 42%, transparent 24%, #2f535526 100%);
 }
-.reading-space.ambience-ocean .personal-page .page-intro p,
-.reading-space.ambience-ocean .personal-page .settings-note,
-.reading-space.ambience-ocean .personal-page .collection-note {
-  color: #d3e8ed;
+.scenic-ambience[data-animated='true'] .scenic-art {
+  animation: scenic-breathe 18s ease-in-out infinite alternate;
 }
-.reading-space.ambience-ocean .personal-page .option-row > button {
-  background: #f4fbfc1f;
-  border-color: #ffffff63;
+.scenic-sky[data-animated='true'] .scenic-far {
+  animation: scenic-drift-left 26s ease-in-out infinite alternate;
 }
-.reading-space.ambience-ocean .personal-page .option-row > button[aria-pressed='true'] {
-  outline-color: #d8f1f3;
+.scenic-sky[data-animated='true'] .scenic-near {
+  animation: scenic-drift-right 34s ease-in-out infinite alternate;
 }
-.reading-space.ambience-ocean .personal-page .motion-setting {
-  border-color: #ffffff33;
+.scenic-shanhai[data-animated='true'] .scenic-far {
+  animation: scenic-mist-left 30s ease-in-out infinite alternate;
 }
-@media (max-width: 430px) {
-  .reading-space:not(.ambience-ocean) .sky::before {
-    width: 74vw;
-    top: -18vw;
-    right: -26vw;
-  }
-  .reading-space:not(.ambience-ocean) .cloud-one {
-    left: -52%;
-  }
-  .reading-space:not(.ambience-ocean) .cloud-two {
-    right: -60%;
-  }
+.scenic-shanhai[data-animated='true'] .scenic-near {
+  animation: scenic-water 18s ease-in-out infinite alternate;
+}
+.scenic-ambience[data-animated='true'] .scenic-light {
+  animation: scenic-light-pulse 9s ease-in-out infinite alternate;
+}
+@keyframes scenic-breathe {
+  from { transform: scale(1.035) translate3d(-0.6%, -0.2%, 0); }
+  to { transform: scale(1.07) translate3d(0.8%, 0.4%, 0); }
+}
+@keyframes scenic-drift-left {
+  from { transform: translate3d(-2%, -0.3%, 0); }
+  to { transform: translate3d(4%, 0.7%, 0); }
+}
+@keyframes scenic-drift-right {
+  from { transform: translate3d(3%, 0, 0); }
+  to { transform: translate3d(-4%, -1%, 0); }
+}
+@keyframes scenic-mist-left {
+  from { transform: translate3d(-3%, 0, 0) scale(1.02); }
+  to { transform: translate3d(4%, 1%, 0) scale(1.07); }
+}
+@keyframes scenic-water {
+  from { transform: translate3d(-1%, 1px, 0) scaleX(1.01); }
+  to { transform: translate3d(2%, -2px, 0) scaleX(1.04); }
+}
+@keyframes scenic-light-pulse {
+  from { opacity: 0.36; }
+  to { opacity: 0.58; }
 }
 
+/* Home cards adapt to the illustrated scenes without flattening them. */
+.ambience-sky .home .brand,
+.ambience-sky .home .greeting h1 {
+  color: #315864;
+}
+.ambience-sky .home .brand-note,
+.ambience-sky .home .greeting .eyebrow,
+.ambience-sky .home .greeting p,
+.ambience-sky .home .home-footer {
+  color: #54747c;
+}
+.ambience-shanhai .home .brand,
+.ambience-shanhai .home .greeting h1 {
+  color: #f1f5ef;
+  text-shadow: 0 2px 18px #294b4d4f;
+}
+.ambience-shanhai .home .brand b,
+.ambience-shanhai .home .brand-note,
+.ambience-shanhai .home .greeting .eyebrow,
+.ambience-shanhai .home .greeting p,
+.ambience-shanhai .home .home-footer {
+  color: #e1ebe6;
+}
+.ambience-sky .home .bubble,
+.ambience-shanhai .home .bubble {
+  background:
+    radial-gradient(circle at 28% 18%, #ffffffdb, transparent 36%),
+    linear-gradient(145deg, #ffffff9e, #edf7f15c 58%, #d2e2dc30);
+  border-color: #ffffffc9;
+  box-shadow:
+    inset 1px 2px 9px #ffffff9f,
+    inset -3px -5px 12px #bed1cb28,
+    0 16px 34px #304f5b1a;
+  -webkit-backdrop-filter: blur(8px) saturate(108%);
+  backdrop-filter: blur(8px) saturate(108%);
+}
+.ambience-shanhai .home .bubble {
+  background:
+    radial-gradient(circle at 27% 18%, #ffffffc7, transparent 35%),
+    linear-gradient(145deg, #eef7f09c, #dce8df50 58%, #9db7b533);
+  color: #34575b;
+}
+.ambience-shanhai .home .bubble-library {
+  background:
+    radial-gradient(circle at 30% 17%, #fff9e8c7, transparent 39%),
+    linear-gradient(145deg, #f3f6e9aa, #bfd4c95c);
+}
+
+/* Settings keeps the live ambience visible while preserving legibility. */
+.ambience-sky .personal-page,
+.ambience-shanhai .personal-page,
+.ambience-ocean .personal-page {
+  text-shadow: 0 1px 12px #18313a1f;
+}
+.ambience-sky .personal-page .settings-section,
+.ambience-shanhai .personal-page .settings-section,
+.ambience-ocean .personal-page .settings-section {
+  border-radius: 24px;
+  padding: 22px 18px;
+  background: #f7fbf775;
+  border: 1px solid #ffffff75;
+  -webkit-backdrop-filter: blur(10px) saturate(108%);
+  backdrop-filter: blur(10px) saturate(108%);
+}
+.ambience-shanhai .personal-page,
+.ambience-ocean .personal-page {
+  color: #eef5f1;
+}
+.ambience-shanhai .personal-page .page-intro p,
+.ambience-shanhai .personal-page .settings-note,
+.ambience-shanhai .personal-page .collection-note,
+.ambience-ocean .personal-page .page-intro p,
+.ambience-ocean .personal-page .settings-note,
+.ambience-ocean .personal-page .collection-note {
+  color: #d9e7e3;
+}
+.ambience-shanhai .personal-page .settings-section,
+.ambience-ocean .personal-page .settings-section {
+  background: #1d3e4166;
+  border-color: #ffffff4d;
+}
+.ambience-shanhai .personal-page .option-row > button,
+.ambience-ocean .personal-page .option-row > button {
+  background: #eff8f51f;
+  border-color: #ffffff5c;
+}
+.ambience-shanhai .personal-page .option-row > button[aria-pressed='true'],
+.ambience-ocean .personal-page .option-row > button[aria-pressed='true'] {
+  outline-color: #e2f3ed;
+}
+.ambience-shanhai .personal-page .motion-setting,
+.ambience-ocean .personal-page .motion-setting {
+  border-color: #ffffff31;
+}
+
+/* Scenic Reader backgrounds stay subordinate to the text surface. */
+.reader.ambience-sky,
+.reader.ambience-shanhai {
+  isolation: isolate;
+}
+.reader.ambience-sky {
+  background: #9ccfe5;
+}
+.reader.ambience-shanhai {
+  background: #78989a;
+}
+.reader.ambience-sky .reader-stage,
+.reader.ambience-shanhai .reader-stage {
+  z-index: 1;
+}
+.reader.ambience-sky .reader-top-controls,
+.reader.ambience-sky .reader-expanded-controls,
+.reader.ambience-sky .reader-persistent-progress,
+.reader.ambience-shanhai .reader-top-controls,
+.reader.ambience-shanhai .reader-expanded-controls,
+.reader.ambience-shanhai .reader-persistent-progress {
+  z-index: 3;
+}
+.scenic-reader .scenic-art {
+  filter: saturate(0.62) brightness(0.9);
+}
+.scenic-reader .scenic-far,
+.scenic-reader .scenic-near,
+.scenic-reader .scenic-light {
+  opacity: 0.34;
+}
+.reader.ambience-sky.theme-paper .scenic-reader .scenic-tint {
+  background: rgba(245, 241, 232, 0.8);
+}
+.reader.ambience-sky.theme-white .scenic-reader .scenic-tint {
+  background: rgba(252, 252, 250, 0.83);
+}
+.reader.ambience-sky.theme-night .scenic-reader .scenic-tint {
+  background: rgba(27, 39, 44, 0.72);
+}
+.reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint {
+  background: rgba(245, 241, 232, 0.82);
+}
+.reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint {
+  background: rgba(252, 252, 250, 0.85);
+}
+.reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint {
+  background: rgba(24, 35, 38, 0.76);
+}
+@media (prefers-reduced-motion: reduce) {
+  .scenic-ambience *,
+  .scenic-ambience *::before,
+  .scenic-ambience *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
