@@ -2138,11 +2138,10 @@ html[data-ambience='night'] { --app-background: #0b1420; }
   background: linear-gradient(180deg,#294c550d 0%,transparent 58%,#233f451d 100%);
 }
 .scenic-space.scenic-night .scenic-base-video {
-  filter: brightness(.3) saturate(.58) contrast(1.12) hue-rotate(8deg);
+  filter: saturate(1.04) brightness(1.04);
 }
 .scenic-space.scenic-night .scenic-tint {
-  background:
-    linear-gradient(180deg,rgba(3,9,18,.48) 0%,rgba(7,18,32,.3) 52%,rgba(3,8,16,.64) 100%);
+  background: linear-gradient(180deg,#07101b0a 0%,transparent 48%,#07101b20 100%);
 }
 
 .ambience-sky .home .brand,
@@ -2218,6 +2217,10 @@ html[data-ambience='night'] { --app-background: #0b1420; }
   background: #1d3e416b;
   border-color: #ffffff4d;
 }
+.ambience-night .personal-page .settings-section {
+  background: #0c1b2caa;
+  border-color: #a6bfd053;
+}
 .ambience-shanhai .personal-page .option-row > button,
 .ambience-ocean .personal-page .option-row > button,
 .ambience-night .personal-page .option-row > button {
@@ -2252,7 +2255,7 @@ html[data-ambience='night'] { --app-background: #0b1420; }
 }
 .scenic-reader.scenic-night .scenic-base-video {
   opacity: 1;
-  filter: brightness(.26) saturate(.5) contrast(1.12) hue-rotate(8deg);
+  filter: saturate(.88) brightness(.92);
 }
 .scenic-reader .scenic-motion-video {
   opacity: .3;
@@ -2265,6 +2268,17 @@ html[data-ambience='night'] { --app-background: #0b1420; }
 .reader.ambience-shanhai.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.68); }
 .reader.ambience-shanhai.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.72); }
 .reader.ambience-shanhai.theme-night .scenic-reader .scenic-tint { background: rgba(24,35,38,.69); }
-.reader.ambience-night.theme-paper .scenic-reader .scenic-tint { background: rgba(16,24,34,.74); }
-.reader.ambience-night.theme-white .scenic-reader .scenic-tint { background: rgba(18,26,36,.76); }
-.reader.ambience-night.theme-night .scenic-reader .scenic-tint { background: rgba(5,10,18,.52); }
+.reader.ambience-night.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.78); }
+.reader.ambience-night.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.81); }
+.reader.ambience-night.theme-night .scenic-reader .scenic-tint { background: rgba(5,10,18,.58); }
+.reader.ambience-night .reader-top-controls,
+.reader.ambience-night .reader-expanded-controls,
+.reader.ambience-night .reader-persistent-progress {
+  background: #0b1420f0;
+  color: #e0eaf3;
+}
+.reader.ambience-night .reader-top-controls > p,
+.reader.ambience-night .reader-page-status,
+.reader.ambience-night .reader-persistent-progress {
+  color: #b9ccdc;
+}

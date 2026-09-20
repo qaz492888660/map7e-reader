@@ -15,8 +15,8 @@ const SCENES = {
       'https://videos.pexels.com/video-files/5701094/5701094-uhd_3238_2160_25fps.mp4',
   },
   night: {
-    poster: null,
-    baseVideo: '/ambience/sky.mp4?v=night-scene-1',
+    poster: '/ambience/night.webp?v=night-scene-2',
+    baseVideo: '/ambience/night.mp4?v=night-scene-2',
     motionVideo: null,
   },
 } as const
@@ -83,7 +83,9 @@ export default function ScenicBackground({
       layer === 'base'
         ? scene === 'sky'
           ? 2.4
-          : 2.2
+          : scene === 'night'
+            ? 1
+            : 2.2
         : scene === 'sky'
           ? 1.35
           : 1.5

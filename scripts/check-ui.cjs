@@ -24,6 +24,7 @@ async function launch(
   stored,
   blocked = false,
   database = new IDBFactory(),
+  reducedMotion = false,
 ) {
   const errors = []
   const console = new VirtualConsole()
@@ -55,7 +56,9 @@ async function launch(
   })
   require('./dom-layout-fixture.cjs')(w)
   w.scrollTo = () => {}
-  w.matchMedia = () => ({ matches: false })
+  w.matchMedia = () => ({ matches: reducedMotion })
+  w.HTMLMediaElement.prototype.play = () => Promise.resolve()
+  w.HTMLMediaElement.prototype.pause = () => {}
   w.ResizeObserver = class {
     observe() {}
     disconnect() {}
@@ -283,6 +286,18 @@ async function swipe(t, dx, dy = 0, cancel = false) {
         .includes('/ambience/sky.mp4') &&
       !!t.d.querySelector('.reader-content'),
   )
+  await click(t, '暗夜')
+  check(
+    'Reader night has its own video, poster, and browser color',
+    !!t.d.querySelector('.reader.ambience-night .reader-content') &&
+      t.d.querySelector('.scenic-reader.scenic-night .scenic-base-video')
+        .getAttribute('src').includes('/ambience/night.mp4') &&
+      t.d.querySelector('.scenic-reader.scenic-night .scenic-poster')
+        .getAttribute('style').includes('/ambience/night.webp') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#0b1420' &&
+      t.d.documentElement.dataset.ambience === 'night',
+  )
+  await click(t, '天空')
   await click(t, '关闭面板')
   check(
     'Night theme changes and persists',
@@ -377,6 +392,47 @@ async function swipe(t, dx, dy = 0, cancel = false) {
         .includes('5701094-uhd_3238_2160_25fps.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
   )
+  await click(t, '暗夜')
+  check(
+    'Settings previews independent night video and poster immediately',
+    !!t.d.querySelector('.reading-space.ambience-night') &&
+      t.d.querySelector('.scenic-space.scenic-night .scenic-base-video')
+        .getAttribute('src').includes('/ambience/night.mp4') &&
+      t.d.querySelector('.scenic-space.scenic-night .scenic-poster')
+        .getAttribute('style').includes('/ambience/night.webp') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#0b1420',
+  )
+  const nightStored = t.w.localStorage.getItem(key)
+  t.dom.window.close()
+  t = await launch('#/settings', nightStored, false, new IDBFactory(), true)
+  check(
+    'Reduced motion keeps the night poster and removes the video',
+    !!t.d.querySelector('.scenic-space.scenic-night .scenic-poster') &&
+      !t.d.querySelector('.scenic-space.scenic-night video') &&
+      t.d.querySelector('.scenic-space.scenic-night').dataset.animated === 'false',
+  )
+  t.dom.window.close()
+  t = await launch('#/reader/b03', nightStored, false, new IDBFactory(), true)
+  check(
+    'Reader reduced motion uses the night poster without playback',
+    !!t.d.querySelector('.scenic-reader.scenic-night .scenic-poster') &&
+      !t.d.querySelector('.scenic-reader.scenic-night video') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#0b1420',
+  )
+  t.dom.window.close()
+  t = await launch('#/settings', nightStored)
+  check(
+    'Reload restores night ambience and animated playback',
+    !!t.d.querySelector('.scenic-space.scenic-night video') &&
+      JSON.parse(t.w.localStorage.getItem(key)).settings.ambience === 'night',
+  )
+  await click(t, '云层动态')
+  check(
+    'Disabling motion leaves the dedicated night poster visible',
+    !!t.d.querySelector('.scenic-space.scenic-night .scenic-poster') &&
+      !t.d.querySelector('.scenic-space.scenic-night video'),
+  )
+  await click(t, '云层动态')
   await click(t, '海洋')
   await go(t, '#/home')
   const homeOceanVideo = t.d.querySelector('.ocean-space video')
@@ -400,6 +456,16 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       !!t.d.querySelector('.scenic-space.scenic-shanhai .scenic-motion-video') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a' &&
       t.d.body.textContent.includes('A ROOM BETWEEN MOUNTAINS AND SEA'),
+  )
+  await go(t, '#/settings')
+  await click(t, '暗夜')
+  await go(t, '#/home')
+  check(
+    'Home night uses a moonlit scene with matching Safari color',
+    !!t.d.querySelector('.reading-space.ambience-night') &&
+      !!t.d.querySelector('.scenic-space.scenic-night .scenic-base-video') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#0b1420' &&
+      t.d.body.textContent.includes('A ROOM UNDER THE NIGHT SKY'),
   )
   await go(t, '#/settings')
   await click(t, '天空')

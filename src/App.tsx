@@ -43,14 +43,18 @@ export default function App() {
         ? settings.ambience
         : 'sky'
     const color = inReader
-      ? readerSurfaces[settings.theme]
+      ? settings.ambience === 'night'
+        ? ambienceChrome.night
+        : readerSurfaces[settings.theme]
       : ambienceChrome[previewAmbience]
     document
       .querySelector<HTMLMetaElement>('meta[name="theme-color"]')
       ?.setAttribute('content', color)
     if (inReader) {
       document.documentElement.dataset.readerSurface = settings.theme
-      delete document.documentElement.dataset.ambience
+      if (settings.ambience === 'night')
+        document.documentElement.dataset.ambience = 'night'
+      else delete document.documentElement.dataset.ambience
     } else {
       delete document.documentElement.dataset.readerSurface
       document.documentElement.dataset.ambience = previewAmbience
