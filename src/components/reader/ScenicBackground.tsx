@@ -1,15 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    video: '/ambience/sky.mp4?v=anime-scene-2',
-    poster: '/ambience/sky.webp?v=anime-scene-2',
+    video: '/ambience/sky.mp4?v=anime-scene-3',
+    poster: '/ambience/sky.webp?v=anime-scene-3',
   },
   shanhai: {
-    video: '/ambience/shanhai.mp4?v=anime-scene-2',
-    poster: '/ambience/shanhai.webp?v=anime-scene-2',
+    video: '/ambience/shanhai.mp4?v=anime-scene-3',
+    poster: '/ambience/shanhai.webp?v=anime-scene-3',
   },
 } as const
 
@@ -23,8 +23,9 @@ export default function ScenicBackground({
   variant: 'space' | 'reader'
 }) {
   const [reducedMotion, setReducedMotion] = useState(false)
-  const [failed, setFailed] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const source = SCENES[scene]
+  const animate = motion && !reducedMotion
 
   useEffect(() => {
     const media = window.matchMedia?.(REDUCED_MOTION_QUERY)
@@ -35,7 +36,29 @@ export default function ScenicBackground({
     return () => media.removeEventListener?.('change', sync)
   }, [])
 
-  const animate = motion && !reducedMotion && !failed
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    if (!animate) {
+      video.pause()
+      return
+    }
+    video.currentTime = 0
+    void video.play().catch(() => {})
+  }, [scene, animate])
+
+  useEffect(() => {
+    const resume = () => {
+      const video = videoRef.current
+      if (animate && video && video.paused) void video.play().catch(() => {})
+    }
+    window.addEventListener('pageshow', resume)
+    document.addEventListener('visibilitychange', resume)
+    return () => {
+      window.removeEventListener('pageshow', resume)
+      document.removeEventListener('visibilitychange', resume)
+    }
+  }, [animate])
 
   return (
     <div
@@ -45,25 +68,29 @@ export default function ScenicBackground({
       data-animated={animate ? 'true' : 'false'}
       aria-hidden="true"
     >
-      <div
-        className="scenic-poster"
-        style={{ backgroundImage: `url("${source.poster}")` }}
-      />
-      {animate && (
+      {animate ? (
         <video
+          ref={videoRef}
           key={scene}
           className="scenic-video"
+          src={source.video}
           autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           tabIndex={-1}
           poster={source.poster}
-          onError={() => setFailed(true)}
-        >
-          <source src={source.video} type="video/mp4" />
-        </video>
+          disablePictureInPicture
+          onLoadedData={(event) => {
+            void event.currentTarget.play().catch(() => {})
+          }}
+        />
+      ) : (
+        <div
+          className="scenic-poster"
+          style={{ backgroundImage: `url("${source.poster}")` }}
+        />
       )}
       <div className="scenic-tint" />
     </div>
