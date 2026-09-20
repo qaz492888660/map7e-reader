@@ -267,7 +267,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     !!t.d.querySelector('.reader.ambience-shanhai') &&
       !!t.d.querySelector('.scenic-reader.scenic-shanhai video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-shanhai source')
+        .querySelector('.scenic-reader.scenic-shanhai video')
         .getAttribute('src')
         .includes('/ambience/shanhai.mp4') &&
       !!t.d.querySelector('.reader-content'),
@@ -278,7 +278,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     !!t.d.querySelector('.reader.ambience-sky') &&
       !!t.d.querySelector('.scenic-reader.scenic-sky video') &&
       t.d
-        .querySelector('.scenic-reader.scenic-sky source')
+        .querySelector('.scenic-reader.scenic-sky video')
         .getAttribute('src')
         .includes('/ambience/sky.mp4') &&
       !!t.d.querySelector('.reader-content'),
@@ -360,7 +360,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       !!t.d.querySelector('.reading-space.ambience-sky') &&
       !!t.d.querySelector('.scenic-space.scenic-sky video') &&
       t.d
-        .querySelector('.scenic-space.scenic-sky source')
+        .querySelector('.scenic-space.scenic-sky video')
         .getAttribute('src')
         .includes('/ambience/sky.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#9ccfe5',
@@ -372,7 +372,7 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       !!t.d.querySelector('.reading-space.ambience-shanhai') &&
       !!t.d.querySelector('.scenic-space.scenic-shanhai video') &&
       t.d
-        .querySelector('.scenic-space.scenic-shanhai source')
+        .querySelector('.scenic-space.scenic-shanhai video')
         .getAttribute('src')
         .includes('/ambience/shanhai.mp4') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#78989a',
