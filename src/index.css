@@ -2084,6 +2084,7 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .scenic-space { position: fixed; inset: 0; z-index: 0; }
 .scenic-reader { position: absolute; inset: 0; z-index: 0; }
 .scenic-poster,
+.scenic-base-video,
 .scenic-motion-video,
 .scenic-tint {
   position: absolute;
@@ -2097,25 +2098,38 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   background-size: cover;
   background-repeat: no-repeat;
 }
+.scenic-base-video,
 .scenic-motion-video {
-  z-index: 1;
   display: block;
   object-fit: cover;
   object-position: center center;
 }
-.scenic-tint { z-index: 2; }
+.scenic-base-video {
+  z-index: 1;
+  opacity: 1;
+}
+.scenic-motion-video {
+  z-index: 2;
+}
+.scenic-tint { z-index: 3; }
+.scenic-space.scenic-sky .scenic-base-video {
+  filter: saturate(1.04) contrast(1.01) brightness(1.02);
+}
 .scenic-space.scenic-sky .scenic-motion-video {
-  opacity: .68;
+  opacity: .48;
   mix-blend-mode: screen;
-  filter: saturate(.9) contrast(.92) brightness(1.03);
+  filter: saturate(.78) contrast(1.05) brightness(1.02);
 }
 .scenic-space.scenic-sky .scenic-tint {
   background: linear-gradient(180deg,#5cb6e706 0%,transparent 66%,#eaf7ff12 100%);
 }
+.scenic-space.scenic-shanhai .scenic-base-video {
+  filter: saturate(.98) contrast(1.02) brightness(.98);
+}
 .scenic-space.scenic-shanhai .scenic-motion-video {
-  opacity: .58;
-  mix-blend-mode: luminosity;
-  filter: saturate(.72) contrast(.96) brightness(.94);
+  opacity: .46;
+  mix-blend-mode: soft-light;
+  filter: grayscale(.35) saturate(.7) contrast(1.12) brightness(.98) blur(.35px);
 }
 .scenic-space.scenic-shanhai .scenic-tint {
   background: linear-gradient(180deg,#294c550d 0%,transparent 58%,#233f451d 100%);
@@ -2189,10 +2203,14 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .reader.ambience-shanhai .reader-top-controls,
 .reader.ambience-shanhai .reader-expanded-controls,
 .reader.ambience-shanhai .reader-persistent-progress { z-index: 3; }
+.scenic-reader .scenic-base-video {
+  opacity: .92;
+  filter: saturate(.72) brightness(.86);
+}
 .scenic-reader .scenic-motion-video {
-  opacity: .34;
-  mix-blend-mode: luminosity;
-  filter: saturate(.58) brightness(.86);
+  opacity: .3;
+  mix-blend-mode: soft-light;
+  filter: grayscale(.3) saturate(.58) contrast(1.08) brightness(.9);
 }
 .reader.ambience-sky.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.69); }
 .reader.ambience-sky.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.73); }
