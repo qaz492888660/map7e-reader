@@ -2084,7 +2084,7 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .scenic-space { position: fixed; inset: 0; z-index: 0; }
 .scenic-reader { position: absolute; inset: 0; z-index: 0; }
 .scenic-poster,
-.scenic-video,
+.scenic-motion-video,
 .scenic-tint {
   position: absolute;
   inset: 0;
@@ -2097,24 +2097,28 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
   background-size: cover;
   background-repeat: no-repeat;
 }
-.scenic-video {
+.scenic-motion-video {
   z-index: 1;
   display: block;
   object-fit: cover;
   object-position: center center;
 }
 .scenic-tint { z-index: 2; }
-.scenic-space.scenic-sky .scenic-video {
-  filter: saturate(1.06) brightness(1.03);
+.scenic-space.scenic-sky .scenic-motion-video {
+  opacity: .68;
+  mix-blend-mode: screen;
+  filter: saturate(.9) contrast(.92) brightness(1.03);
 }
 .scenic-space.scenic-sky .scenic-tint {
-  background: linear-gradient(180deg,#5cb6e70b 0%,transparent 60%,#eaf7ff16 100%);
+  background: linear-gradient(180deg,#5cb6e706 0%,transparent 66%,#eaf7ff12 100%);
 }
-.scenic-space.scenic-shanhai .scenic-video {
-  filter: saturate(.94) brightness(.96);
+.scenic-space.scenic-shanhai .scenic-motion-video {
+  opacity: .58;
+  mix-blend-mode: luminosity;
+  filter: saturate(.72) contrast(.96) brightness(.94);
 }
 .scenic-space.scenic-shanhai .scenic-tint {
-  background: linear-gradient(180deg,#294c5512 0%,transparent 52%,#233f4525 100%);
+  background: linear-gradient(180deg,#294c550d 0%,transparent 58%,#233f451d 100%);
 }
 
 .ambience-sky .home .brand,
@@ -2185,7 +2189,11 @@ html[data-ambience='shanhai'] { --app-background: #657f83; }
 .reader.ambience-shanhai .reader-top-controls,
 .reader.ambience-shanhai .reader-expanded-controls,
 .reader.ambience-shanhai .reader-persistent-progress { z-index: 3; }
-.scenic-reader .scenic-video { filter: saturate(.72) brightness(.9); }
+.scenic-reader .scenic-motion-video {
+  opacity: .34;
+  mix-blend-mode: luminosity;
+  filter: saturate(.58) brightness(.86);
+}
 .reader.ambience-sky.theme-paper .scenic-reader .scenic-tint { background: rgba(245,241,232,.69); }
 .reader.ambience-sky.theme-white .scenic-reader .scenic-tint { background: rgba(252,252,250,.73); }
 .reader.ambience-sky.theme-night .scenic-reader .scenic-tint { background: rgba(27,39,44,.69); }
