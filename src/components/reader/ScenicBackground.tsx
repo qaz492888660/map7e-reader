@@ -25,11 +25,7 @@ export default function ScenicBackground({
   variant: 'space' | 'reader'
 }) {
   const [reducedMotion, setReducedMotion] = useState(false)
-  const [videoFailed, setVideoFailed] = useState(false)
-
-  useEffect(() => {
-    setVideoFailed(false)
-  }, [scene])
+  const source = SCENES[scene]
 
   useEffect(() => {
     const media = window.matchMedia?.(REDUCED_MOTION_QUERY)
@@ -40,39 +36,35 @@ export default function ScenicBackground({
     return () => media.removeEventListener?.('change', sync)
   }, [])
 
-  const animate = motion && !reducedMotion && !videoFailed
-  const source = SCENES[scene]
+  const animate = motion && !reducedMotion
 
   return (
     <div
+      key={scene}
       className={`scenic-ambience scenic-${scene} scenic-${variant}`}
+      data-scene={scene}
       data-animated={animate ? 'true' : 'false'}
       aria-hidden="true"
     >
-      {animate ? (
+      <div
+        className="scenic-poster"
+        style={{ backgroundImage: `url("${source.poster}")` }}
+      />
+      {animate && (
         <video
+          key={source.video}
           className="scenic-video"
           autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           tabIndex={-1}
           poster={source.poster}
-          onError={() => setVideoFailed(true)}
         >
           <source src={source.video} type="video/mp4" />
         </video>
-      ) : (
-        <div
-          className="scenic-poster"
-          style={{ backgroundImage: `url("${source.poster}")` }}
-        />
       )}
-      <div
-        className="scenic-anime-art"
-        style={{ backgroundImage: `url("${source.poster}")` }}
-      />
       <div className="scenic-tint" />
     </div>
   )
