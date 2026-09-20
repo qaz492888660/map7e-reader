@@ -4,11 +4,11 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    video: 'https://cdn.pixabay.com/video/2025/03/23/266881_large.mp4',
+    video: 'https://videos.pexels.com/video-files/5084245/5084245-uhd_3840_2160_30fps.mp4',
     poster: '/ambience/sky.svg',
   },
   shanhai: {
-    video: 'https://cdn.pixabay.com/video/2025/03/19/265569_large.mp4',
+    video: 'https://videos.pexels.com/video-files/29329514/12642734_1920_1080_30fps.mp4',
     poster: '/ambience/shanhai.svg',
   },
 } as const
