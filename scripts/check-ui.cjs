@@ -999,3 +999,20 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   console.error(error)
   process.exitCode = 1
 })
+
+
+test('scenic ambience scene identity stays isolated', () => {
+  const source = read('src/components/reader/ScenicBackground.tsx')
+  assert.match(source, /key=\{scene\}/)
+  assert.match(source, /data-scene=\{scene\}/)
+  assert.doesNotMatch(source, /scenic-anime-art/)
+  assert.doesNotMatch(source, /videoFailed/)
+})
+
+test('settings remounts scenic background when ambience changes', () => {
+  const source = read('src/App.tsx')
+  assert.match(
+    source,
+    /key=\{page\.name === 'home' \|\| page\.name === 'settings' \? settings\.ambience : 'sky'\}/,
+  )
+})
