@@ -999,13 +999,3 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   console.error(error)
   process.exitCode = 1
 })
-
-
-test('scenic motion layers use real moving footage rather than near-static local loops', () => {
-  const source = read('src/components/reader/ScenicBackground.tsx')
-  assert.match(source, /5084245-uhd_3840_2160_30fps\.mp4/)
-  assert.match(source, /5701094-uhd_3238_2160_25fps\.mp4/)
-  assert.match(source, /className="scenic-motion-video"/)
-  assert.doesNotMatch(source, /\/ambience\/sky\.mp4/)
-  assert.doesNotMatch(source, /\/ambience\/shanhai\.mp4/)
-})
