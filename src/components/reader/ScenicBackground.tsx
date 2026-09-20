@@ -69,6 +69,10 @@ export default function ScenicBackground({
           style={{ backgroundImage: `url("${source.poster}")` }}
         />
       )}
+      <div
+        className="scenic-anime-art"
+        style={{ backgroundImage: `url("${source.poster}")` }}
+      />
       <div className="scenic-tint" />
     </div>
   )
