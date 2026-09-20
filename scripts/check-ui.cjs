@@ -1011,10 +1011,10 @@ test('settings remounts scenic background when ambience changes', () => {
 })
 
 
-test('scenic ambience uses selected anime MP4 scenes and keeps them isolated', () => {
+test('scenic ambience uses people-free sky and animated shanhai MP4 scenes', () => {
   const source = read('src/components/reader/ScenicBackground.tsx')
-  assert.match(source, /266881_large\.mp4/)
-  assert.match(source, /265569_large\.mp4/)
+  assert.match(source, /5084245-uhd_3840_2160_30fps\.mp4/)
+  assert.match(source, /12642734_1920_1080_30fps\.mp4/)
   assert.match(source, /key=\{scene\}/)
   assert.match(source, /key=\{source\.video\}/)
   assert.doesNotMatch(source, /<canvas/)
