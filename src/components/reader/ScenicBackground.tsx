@@ -4,12 +4,14 @@ const REDUCED_MOTION_QUERY = '(prefers-reduced-motion: reduce)'
 
 const SCENES = {
   sky: {
-    poster: '/ambience/sky.webp?v=anime-scene-4',
+    poster: '/ambience/sky.webp?v=anime-scene-5',
+    baseVideo: '/ambience/sky.mp4?v=anime-scene-5',
     motionVideo:
       'https://videos.pexels.com/video-files/5084245/5084245-uhd_3840_2160_30fps.mp4',
   },
   shanhai: {
-    poster: '/ambience/shanhai.webp?v=anime-scene-4',
+    poster: '/ambience/shanhai.webp?v=anime-scene-5',
+    baseVideo: '/ambience/shanhai.mp4?v=anime-scene-5',
     motionVideo:
       'https://videos.pexels.com/video-files/5701094/5701094-uhd_3238_2160_25fps.mp4',
   },
@@ -25,7 +27,8 @@ export default function ScenicBackground({
   variant: 'space' | 'reader'
 }) {
   const [reducedMotion, setReducedMotion] = useState(false)
-  const videoRef = useRef<HTMLVideoElement>(null)
+  const baseVideoRef = useRef<HTMLVideoElement>(null)
+  const motionVideoRef = useRef<HTMLVideoElement>(null)
   const source = SCENES[scene]
   const animate = motion && !reducedMotion
 
@@ -39,20 +42,25 @@ export default function ScenicBackground({
   }, [])
 
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const videos = [baseVideoRef.current, motionVideoRef.current].filter(
+      (video): video is HTMLVideoElement => Boolean(video),
+    )
     if (!animate) {
-      video.pause()
+      videos.forEach((video) => video.pause())
       return
     }
-    video.currentTime = 0
-    void video.play().catch(() => {})
+    videos.forEach((video) => {
+      video.currentTime = 0
+      void video.play().catch(() => {})
+    })
   }, [scene, animate])
 
   useEffect(() => {
     const resume = () => {
-      const video = videoRef.current
-      if (animate && video && video.paused) void video.play().catch(() => {})
+      if (!animate) return
+      for (const video of [baseVideoRef.current, motionVideoRef.current]) {
+        if (video?.paused) void video.play().catch(() => {})
+      }
     }
     window.addEventListener('pageshow', resume)
     document.addEventListener('visibilitychange', resume)
@@ -61,6 +69,22 @@ export default function ScenicBackground({
       document.removeEventListener('visibilitychange', resume)
     }
   }, [animate])
+
+  const startVideo = (
+    event: React.SyntheticEvent<HTMLVideoElement>,
+    layer: 'base' | 'motion',
+  ) => {
+    const video = event.currentTarget
+    video.playbackRate =
+      layer === 'base'
+        ? scene === 'sky'
+          ? 2.4
+          : 2.2
+        : scene === 'sky'
+          ? 1.35
+          : 1.5
+    void video.play().catch(() => {})
+  }
 
   return (
     <div
@@ -75,23 +99,38 @@ export default function ScenicBackground({
         style={{ backgroundImage: `url("${source.poster}")` }}
       />
       {animate && (
-        <video
-          ref={videoRef}
-          key={source.motionVideo}
-          className="scenic-motion-video"
-          src={source.motionVideo}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          tabIndex={-1}
-          disablePictureInPicture
-          onLoadedData={(event) => {
-            event.currentTarget.playbackRate = scene === 'sky' ? 1.15 : 1.3
-            void event.currentTarget.play().catch(() => {})
-          }}
-        />
+        <>
+          <video
+            ref={baseVideoRef}
+            key={`${scene}-base`}
+            className="scenic-base-video"
+            src={source.baseVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex={-1}
+            disablePictureInPicture
+            onLoadedData={(event) => startVideo(event, 'base')}
+            onCanPlay={(event) => startVideo(event, 'base')}
+          />
+          <video
+            ref={motionVideoRef}
+            key={`${scene}-motion`}
+            className="scenic-motion-video"
+            src={source.motionVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload="auto"
+            tabIndex={-1}
+            disablePictureInPicture
+            onLoadedData={(event) => startVideo(event, 'motion')}
+            onCanPlay={(event) => startVideo(event, 'motion')}
+          />
+        </>
       )}
       <div className="scenic-tint" />
     </div>
