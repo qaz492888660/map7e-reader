@@ -217,6 +217,32 @@ async function swipe(t, dx, dy = 0, cancel = false) {
       motionlessHome.d.querySelector('meta[name="theme-color"]').content === '#143f55',
   )
   motionlessHome.dom.window.close()
+  const motionOffSaved = JSON.stringify({
+    positions: {},
+    settings: {
+      fontSize: 19,
+      fontFamily: 'serif',
+      theme: 'paper',
+      lineHeight: 1.85,
+      pageMargin: 26,
+      script: 'original',
+      ambience: 'ocean',
+      motion: false,
+    },
+  })
+  const motionOffHome = await launch('#/home', motionOffSaved)
+  check(
+    'Disabling ambient motion does not remove the independent opening film',
+    !!motionOffHome.d.querySelector('.opening-intro[role="dialog"] video[src^="/opening/sky-to-sea.mp4"]'),
+  )
+  await click(motionOffHome, '跳过开场')
+  await new Promise((resolve) => setTimeout(resolve, 1050))
+  await click(motionOffHome, '设置')
+  check(
+    'Ocean is the first ambience option',
+    button(motionOffHome, '海洋') === motionOffHome.d.querySelector('.ambience-options button:first-child'),
+  )
+  motionOffHome.dom.window.close()
   await click(t, '我的书库')
   check(
     'Home opens an independent Library with no bubbles',

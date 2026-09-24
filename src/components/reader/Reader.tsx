@@ -455,13 +455,13 @@ export function AmbienceOptions({
 }) {
   return (
     <div className="option-row ambience-options">
-      {(['sky', 'ocean', 'shanhai', 'night'] as const).map((ambience, i) => (
+      {(['ocean', 'sky', 'shanhai', 'night'] as const).map((ambience, i) => (
         <button
           key={ambience}
           aria-pressed={settings.ambience === ambience}
           onClick={() => onSettings({ ...settings, ambience })}
         >
-          {['天空', '海洋', '山海', '暗夜'][i]}
+          {['海洋', '天空', '山海', '暗夜'][i]}
         </button>
       ))}
     </div>

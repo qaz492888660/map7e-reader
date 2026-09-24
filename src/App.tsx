@@ -29,7 +29,6 @@ export default function App() {
   const [opening, setOpening] = useState(
     () =>
       page.name === 'home' &&
-      settings.motion &&
       !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
   )
   useEffect(() => {
