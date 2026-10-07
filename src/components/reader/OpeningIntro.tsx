@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
-const VIDEO = '/opening/sky-to-sea.mp4?v=2'
-const POSTER = '/opening/first-frame.webp?v=1'
+const VIDEO = '/opening/sky-to-sea.mp4?v=3'
+const POSTER = '/opening/first-frame.webp?v=2'
 
 export default function OpeningIntro({ onComplete }: { onComplete: () => void }) {
   const video = useRef<HTMLVideoElement>(null)
