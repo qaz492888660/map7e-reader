@@ -2283,8 +2283,8 @@ html[data-ambience='night'] { --app-background: #0b1420; }
   color: #b9ccdc;
 }
 
-/* Full-viewport film shown only on an initial home load. The ambience remains underneath. */
-html[data-opening='true'] { background: #3175a0; }
+/* Click-to-enter ocean gate. The real Home is already mounted underneath. */
+html[data-opening='true'] { --app-background: #073047; }
 .opening-intro {
   position: fixed;
   inset: 0;
@@ -2293,32 +2293,82 @@ html[data-opening='true'] { background: #3175a0; }
   height: 100dvh;
   z-index: 1000;
   overflow: hidden;
-  background: #143f55;
-  opacity: 1;
-  transition: opacity .9s ease-in-out;
+  display: block;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  isolation: isolate;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
 }
-.opening-intro-leaving {
-  opacity: 0;
-  pointer-events: none;
+.opening-intro:focus-visible {
+  outline: 1px solid #b3dde49c;
+  outline-offset: -5px;
 }
-.opening-intro-video {
+.opening-intro-surface,
+.opening-intro-poster,
+.opening-intro-video,
+.opening-water-ripples {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+}
+.opening-intro-surface {
+  --opening-hole-inner: 0px;
+  --opening-hole-outer: 0px;
+  background:
+    radial-gradient(ellipse at 52% -8%, #c7efe780, transparent 58%),
+    conic-gradient(from 155deg at 52% -14%, transparent 0deg, #7fcde71c 12deg, transparent 22deg, #8cdded14 34deg, transparent 47deg),
+    linear-gradient(180deg, #215f79 0%, #0e425e 43%, #042239 100%);
+}
+.opening-intro-entering .opening-intro-surface {
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, transparent var(--opening-hole-inner), #000 var(--opening-hole-outer));
+  mask-image: radial-gradient(circle at 50% 50%, transparent var(--opening-hole-inner), #000 var(--opening-hole-outer));
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  will-change: mask-image;
+}
+.opening-intro-poster {
+  background-position: center;
+  background-size: cover;
+}
+.opening-intro-video {
   object-fit: cover;
-  background: #3175a0;
+  object-position: center;
+  opacity: 0;
+  transition: opacity 260ms ease-out;
 }
-.opening-intro-skip {
+.opening-intro-video[data-ready='true'] { opacity: 1; }
+.opening-water-ripples {
+  display: none;
+  overflow: visible;
+}
+.opening-intro-entering .opening-water-ripples { display: block; }
+.opening-water-ring {
   position: absolute;
-  top: calc(env(safe-area-inset-top, 0px) + 16px);
-  right: calc(env(safe-area-inset-right, 0px) + 16px);
-  padding: 9px 15px;
-  border: 1px solid #fff9;
-  border-radius: 30px;
-  background: #103f5b9e;
-  color: #fff;
-  font: inherit;
-  font-size: 13px;
-  cursor: pointer;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  /* Narrow shaded annulus, not a white border or a full-screen overlay. */
+  background: radial-gradient(closest-side, transparent calc(100% - 12px), #052f4938 calc(100% - 8px), #97d5df42 calc(100% - 5px), #d2f0e633 calc(100% - 3px), transparent 100%);
+  -webkit-mask-image: radial-gradient(closest-side, transparent calc(100% - 14px), #000 calc(100% - 11px), #000 calc(100% - 2px), transparent 100%);
+  mask-image: radial-gradient(closest-side, transparent calc(100% - 14px), #000 calc(100% - 11px), #000 calc(100% - 2px), transparent 100%);
+  -webkit-backdrop-filter: blur(1.4px) saturate(1.12);
+  backdrop-filter: blur(1.4px) saturate(1.12);
 }
-.opening-intro-skip:focus-visible { outline: 2px solid white; outline-offset: 3px; }
+.opening-water-ring:nth-child(2) { filter: blur(.5px); }
+.opening-water-ring:nth-child(3) { filter: blur(1px); }
+.opening-intro[data-reduced-motion='true'] .opening-water-ripples { display: none; }
+@media (prefers-reduced-motion: reduce) {
+  .opening-intro-video { transition: none; }
+}

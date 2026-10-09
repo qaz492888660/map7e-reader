@@ -8,16 +8,21 @@
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
     <meta name="theme-color" content="#dfe7e6" />
+    <style>
+      html[data-opening='true'],
+      html[data-opening='true'] body,
+      html[data-opening='true'] #root {
+        background: #073047;
+      }
+    </style>
     <script>
       try {
-        const saved = JSON.parse(localStorage.getItem('map7e-reader:v1') || 'null')
-        const opening =
-          (!location.hash || /^#\/?(?:home)?$/.test(location.hash)) &&
-          !matchMedia('(prefers-reduced-motion: reduce)').matches
+        const opening = !location.hash || /^#\/?(?:home)?$/.test(location.hash)
         if (opening) {
           document.documentElement.dataset.opening = 'true'
-          document.querySelector('meta[name="theme-color"]').content = '#3175a0'
+          document.querySelector('meta[name="theme-color"]').content = '#073047'
         }
+        const saved = JSON.parse(localStorage.getItem('map7e-reader:v1') || 'null')
         const openingNight =
           saved?.settings?.ambience === 'night' &&
           (!location.hash || /^#\/(home|settings|reader\/)/.test(location.hash))
