@@ -37,7 +37,10 @@ check('Chinese script display converts without mutating the source string', () =
   const source = '群眾心理與學習'
   assert.equal(convertText(source, 'original'), source)
   assert.equal(convertText(source, 'simplified'), '群众心理与学习')
-  assert.equal(convertText('群众心理与学习', 'traditional'), '群眾心理與學習')
+  // textScript uses to: 't' (OpenCC standard), not Taiwan's to: 'tw'.
+  const traditional = convertText('群众心理与学习', 'traditional')
+  assert.equal(traditional, '羣衆心理與學習')
+  assert.equal(convertText(traditional, 'simplified'), '群众心理与学习')
   assert.equal(source, '群眾心理與學習')
 })
 check('Display offsets map back to stable original-text offsets', () => {

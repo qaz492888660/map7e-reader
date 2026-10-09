@@ -190,32 +190,55 @@ async function swipe(t, dx, dy = 0, cancel = false) {
     t.d.querySelectorAll('.bubble').length === 4 &&
       !t.d.querySelector('.book-carousel') &&
       !!t.d.querySelector('.reading-space.ambience-ocean') &&
-      !!t.d.querySelector('.ocean-space video') &&
-      t.d.querySelector('meta[name="theme-color"]').content === '#3175a0' &&
+      !!t.d.querySelector('.ocean-space .ocean-poster') &&
+      t.d.querySelector('meta[name="theme-color"]').content === '#073047' &&
       !t.d.documentElement.dataset.readerSurface,
   )
   check(
-    'Initial home shows an independent full-screen video with a skip control',
-    !!t.d.querySelector('.opening-intro[role="dialog"] video[src^="/opening/sky-to-sea.mp4"]') &&
-      !!button(t, '跳过开场') &&
+    'Pending licence keeps a clean ocean gate without the old film or skip control',
+    !!button(t, '进入 MAP7E Reader') &&
+      !t.d.querySelector('.opening-intro video') &&
+      !button(t, '跳过开场') &&
       !t.d.querySelector('.scenic-space'),
   )
-  await click(t, '跳过开场')
-  await new Promise((resolve) => setTimeout(resolve, 1050))
   check(
-    'Skipping fades into the existing ocean home without changing the saved ambience',
+    'The mounted Home is inert and its decoder is stopped while the gate covers it',
+    t.d.querySelector('.reading-space').hasAttribute('inert') &&
+      t.d.querySelector('.reading-space').getAttribute('aria-hidden') === 'true' &&
+      !t.d.querySelector('.ocean-space video'),
+  )
+  await click(t, '进入 MAP7E Reader')
+  check(
+    'Click starts a central reveal while the original Home stays mounted underneath',
+    !!t.d.querySelector('.opening-intro-entering') &&
+      parseFloat(t.d.querySelector('.opening-intro-surface').style.getPropertyValue('--opening-hole-outer')) > 0 &&
+      !!t.d.querySelector('.home'),
+  )
+  await new Promise((resolve) => setTimeout(resolve, 1300))
+  check(
+    'The ripple reveals the existing ocean Home without changing saved state or routing',
     !t.d.querySelector('.opening-intro') &&
       !!t.d.querySelector('.ocean-space video') &&
       t.d.querySelector('meta[name="theme-color"]').content === '#143f55' &&
-      !t.w.localStorage.getItem(key),
+      !t.d.querySelector('.reading-space').hasAttribute('inert') &&
+      !t.d.documentElement.dataset.opening &&
+      !t.w.localStorage.getItem(key) &&
+      t.w.location.hash === '#/home' &&
+      t.d.activeElement === t.d.querySelector('h1'),
   )
   const motionlessHome = await launch('#/home', undefined, false, new IDBFactory(), true)
   check(
-    'Reduced motion opens directly on the ocean home without the film',
-    !motionlessHome.d.querySelector('.opening-intro') &&
+    'Reduced motion keeps the static click-to-enter gate, without automatic navigation',
+    motionlessHome.d.querySelector('.opening-intro').dataset.reducedMotion === 'true' &&
+      !motionlessHome.d.querySelector('.opening-intro video') &&
       !!motionlessHome.d.querySelector('.reading-space.ambience-ocean') &&
-      motionlessHome.d.querySelector('meta[name="theme-color"]').content === '#143f55',
+      motionlessHome.d.querySelector('meta[name="theme-color"]').content === '#073047',
   )
+  await click(motionlessHome, '进入 MAP7E Reader')
+  await new Promise((resolve) => setTimeout(resolve, 300))
+  check('Reduced motion enters only after a click and a shortened reveal',
+    !motionlessHome.d.querySelector('.opening-intro') &&
+      !motionlessHome.d.querySelector('.ocean-space video'))
   motionlessHome.dom.window.close()
   const motionOffSaved = JSON.stringify({
     positions: {},
@@ -232,11 +255,11 @@ async function swipe(t, dx, dy = 0, cancel = false) {
   })
   const motionOffHome = await launch('#/home', motionOffSaved)
   check(
-    'Disabling ambient motion does not remove the independent opening film',
-    !!motionOffHome.d.querySelector('.opening-intro[role="dialog"] video[src^="/opening/sky-to-sea.mp4"]'),
+    'Disabling ambient motion does not remove the independent click-to-enter gate',
+    !!button(motionOffHome, '进入 MAP7E Reader'),
   )
-  await click(motionOffHome, '跳过开场')
-  await new Promise((resolve) => setTimeout(resolve, 1050))
+  await click(motionOffHome, '进入 MAP7E Reader')
+  await new Promise((resolve) => setTimeout(resolve, 1300))
   await click(motionOffHome, '设置')
   check(
     'Ocean is the first ambience option',

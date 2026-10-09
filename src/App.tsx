@@ -26,16 +26,13 @@ export default function App() {
   const saved = useReaderState()
   const privateLibrary = usePrivateLibrary()
   const { settings, setSettings } = saved
-  const [opening, setOpening] = useState(
-    () =>
-      page.name === 'home' &&
-      !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
-  )
+  const [opening, setOpening] = useState(() => page.name === 'home')
   useEffect(() => {
     if (page.name !== 'home' && opening) setOpening(false)
   }, [page.name, opening])
   useLayoutEffect(() => {
-    if (!opening) delete document.documentElement.dataset.opening
+    if (opening) document.documentElement.dataset.opening = 'true'
+    else delete document.documentElement.dataset.opening
     const readerSurfaces = {
       paper: '#f5f1e8',
       white: '#fcfcfa',
@@ -52,7 +49,7 @@ export default function App() {
       page.name === 'home' || page.name === 'settings'
         ? settings.ambience
         : 'sky'
-    const color = opening && page.name === 'home' ? '#3175a0' : inReader
+    const color = opening && page.name === 'home' ? '#073047' : inReader
       ? settings.ambience === 'night'
         ? ambienceChrome.night
         : readerSurfaces[settings.theme]
@@ -148,11 +145,10 @@ export default function App() {
   useEffect(() => {
     document.title = `${selected ? selected.title + ' · ' : ''}MAP7E Reader`
     window.scrollTo(0, 0)
-    document
-      .querySelector<HTMLElement>('h1')
-      ?.focus({ preventScroll: true })
+    if (!opening)
+      document.querySelector<HTMLElement>('h1')?.focus({ preventScroll: true })
     setImporting(null)
-  }, [page.name, selected?.id])
+  }, [page.name, selected?.id, opening])
   const selectedContent = selected && contentFor(selected)
   const loading =
     selected?.sourceType === 'private' && privateLibrary.loading
@@ -187,6 +183,8 @@ export default function App() {
         )
       ) : (
         <div
+          {...(opening ? { inert: '' } : {})}
+          aria-hidden={opening || undefined}
           className={`reading-space ${settings.motion ? '' : 'motion-paused'} ambience-${
             page.name === 'home' || page.name === 'settings'
               ? settings.ambience
@@ -196,7 +194,7 @@ export default function App() {
           {(page.name === 'home' || page.name === 'settings'
             ? settings.ambience
             : 'sky') === 'ocean' ? (
-            <OceanBackground motion={settings.motion} variant="space" />
+            <OceanBackground motion={settings.motion && !opening} variant="space" />
           ) : (
             <ScenicBackground
               key={page.name === 'home' || page.name === 'settings' ? settings.ambience : 'sky'}
@@ -205,7 +203,7 @@ export default function App() {
                   ? settings.ambience
                   : 'sky') as 'sky' | 'shanhai' | 'night'
               }
-              motion={settings.motion}
+              motion={settings.motion && !opening}
               variant="space"
             />
           )}
